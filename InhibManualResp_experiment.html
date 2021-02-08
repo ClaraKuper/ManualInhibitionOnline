@@ -1,0 +1,376 @@
+<!doctype html>
+<!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
+<html lang="de">
+
+<head>
+    <title>Pointing experiment</title>
+    <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
+    <script src="jspsych-6.0.4/jspsych.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-keyboard-response.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-image-keyboard-response.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+    <script src="jatos.js"></script>
+    <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"></link>
+</head>
+
+<body bgcolor='gray'>
+    <script>
+
+        // event handler function for mouse clicks
+        let xyCoords = {};
+
+        function handler(e) {
+            e = e || window.event;
+
+            var pageX = e.pageX;
+            var pageY = e.pageY;
+
+            // IE 8
+            if (pageX === undefined) {
+                pageX = e.clientX + document.body.scrollLeft + document.documentElement.scrollLeft;
+                pageY = e.clientY + document.body.scrollTop + document.documentElement.scrollTop;
+            }
+
+            xyCoords.X = pageX;
+            xyCoords.Y = pageY;
+
+            console.log(xyCoords);
+        };
+
+        // attach handler to the click event of the document
+        if (document.attachEvent) document.attachEvent('onclick', handler);
+        else document.addEventListener('click', handler);
+
+        // check if the mouse is down
+        let mouseDown = 0;
+        document.body.onmousedown = function() {
+            ++mouseDown;
+        };
+        document.body.onmouseup = function() {
+            --mouseDown;
+        };
+
+        /* create timeline */
+        let timeline = [];
+
+        let timer = {};
+
+        let scrWidth = screen.width;
+        let scrHeight = screen.height;
+
+        /* define welcome message trial */
+        let welcome = {
+            type: "html-button-response",
+            stimulus: "<p>Welcome to the experiment. Press continue to begin. </p>" +
+                "<p>Your screen is " + scrWidth + " pixel wide and " + scrHeight + " pixel high. </p>",
+            choices: ['continue']
+        };
+        timeline.push(welcome);
+
+        /* define instructions trial */
+        let instructions = {
+            type: "html-button-response",
+            stimulus: "<p>In this experiment, a circle will appear in the center " +
+                "of the screen.</p><p> Please touch that circle. After some time, " +
+                "the circle will jump to the left or to the right. Touch it, as fast</p>" +
+                "<p> as you can. In some trials, the circle might jump a second time." +
+                "Try to touch it as accurately as possible.</p>" +
+                "<p>Press continue to begin.</p>",
+            post_trial_gap: 1000,
+            choices: ['continue']
+        };
+        timeline.push(instructions);
+
+        /* define stimulus looks */
+        let fixationPoint = "<div style = 'position:absolute; left:50%; top:50%; height: 50px;" +
+                "  width: 50px;" +
+                "  background-color: #000000;" +
+                "  border-radius: 50%;" +
+                "  margin-top: -(50/2)px;" +
+                "  margin-left: -(50/2)px;'>" +
+                "<span class=dot ></span>";
+
+        let rightTar = "<div style = 'position:absolute; right:20%; top:50%; height: 50px;" +
+                "  width: 50px;" +
+                "  background-color: #000000;" +
+                "  border-radius: 50%;" +
+                "  margin-top: -(50/2)px;" +
+                "  margin-left: -(50/2)px;'>" +
+                "<span class=dot ></span>";
+
+        // invisible right tar let rightTarInvisible
+
+        let rightTarInvisible = "<div id='rectangle' style='position:absolute; left:50%; top:0;" +
+                "width:50%; height:100%; background-color:rgba(153,31,35,0);'></div>";
+
+        let leftTar = "<div style = 'position:absolute; left:20%; top:50%; height: 50px;" +
+                "  width: 50px;" +
+                "  background-color: #000000;" +
+                "  border-radius: 50%;" +
+                "  margin-top: -(50/2)px;" +
+                "  margin-left: -(50/2)px;'>" +
+                "<span class=dot ></span>";
+
+        // invisible left Tar let leftTarInvisible
+
+        let leftTarInvisible = "<div id='rectangle' style='position:absolute; right:50%; top:0;" +
+                "width:50%; height:100%; background-color:rgba(153,31,35,0);'></div>";
+
+        let rightTarShift =  "<div style = 'position:absolute; right:24%; top:50%; height: 50px;" +
+                "  width: 50px;" +
+                "  background-color: #000000;" +
+                "  border-radius: 50%;" +
+                "  margin-top: -(50/2)px;" +
+                "  margin-left: -(50/2)px;'>" +
+                "<span class=dot ></span>";
+
+        let leftTarShift = "<div style = 'position:absolute; left:24%; top:50%; height: 50px;" +
+                "  width: 50px;" +
+                "  background-color: #000000;" +
+                "  border-radius: 50%;" +
+                "  margin-top: -(50/2)px;" +
+                "  margin-left: -(50/2)px;'>" +
+                "<span class=dot ></span>";
+
+        let flashVisible = "<div id='rectangle' style='position:absolute; left:0; top:0;" +
+                "width:100%; height:33%; background-color:#ffffff;'></div>" +
+                "<div id='rectangle' style='position:absolute; left:0; bottom:0;" +
+                "width:100%; height:33%; background-color:#ffffff;'></div>" +
+                "<div id ='dot' style='position:absolute; right:50%'></div>";
+
+        let flashInvisible = "<div id='rectangle' style=' position:absolute; left:0; top:0;" +
+                "width:100%; height:33%; background-color:#808080;'></div>" +
+                "<div id='rectangle' style=' position:absolute; left:0; bottom:0;" +
+                "width:100%; height:33%; background-color:#808080;'></div>";
+
+
+        /* test trials */
+        let test_stimuli = [
+
+            // trial type 1: target right, flash, and shift
+            {
+                stimulus: rightTar,
+                jumpedStim: rightTarShift,
+                responseButton: rightTarInvisible,
+                flash: flashVisible,
+                data: {
+                    test_part: 'test',
+                    position: 'r',
+                    shift: 1,
+                    flash: 1,
+                },
+        },
+
+            // trial type 2: target right, flash, no shift
+            {
+                stimulus: rightTar,
+                jumpedStim: rightTar,
+                responseButton: rightTarInvisible,
+                flash: flashVisible,
+                data: {
+                    position: 'r',
+                    shift: 0,
+                    flash: 1,
+                },
+        },
+            // trial type 3: target right, no flash, shift
+            {
+                stimulus: rightTar,
+                jumpedStim: rightTarShift,
+                responseButton: rightTarInvisible,
+                flash: flashInvisible,
+                data: {
+                    position: 'r',
+                    shift: 1,
+                    flash: 0,
+                },
+        },
+
+            // trial type 4: target right, no flash, no shift
+            {
+                stimulus: rightTar,
+                jumpedStim: rightTar,
+                responseButton: rightTarInvisible,
+                flash: flashInvisible,
+                data: {
+                    position: 'r',
+                    shift: 0,
+                    flash: 0,
+            },
+        },
+
+            // trial type 5: target left, flash, shift
+            {
+                stimulus: leftTar,
+                jumpedStim: leftTarShift,
+                responseButton: leftTarInvisible,
+                flash: flashVisible,
+                data: {
+                    position: 'l',
+                    shift: 1,
+                    flash: 1,
+                },
+            },
+
+             // trial type 6: target left, flash, no shift
+            {
+                stimulus: leftTar,
+                jumpedStim: leftTar,
+                responseButton: leftTarInvisible,
+                flash: flashVisible,
+                data: {
+                    position: 'l',
+                    shift: 0,
+                    flash: 1,
+                },
+            },
+
+            // trial type 7: target left, no flash, shift
+            {
+                stimulus: leftTar,
+                jumpedStim: leftTarShift,
+                responseButton: leftTarInvisible,
+                flash: flashInvisible,
+                data: {
+                    position: 'l',
+                    shift: 1,
+                    flash: 0,
+                },
+            },
+
+            // trial type 8: target left, no flash, no shift
+            {
+                stimulus: leftTar,
+                jumpedStim: leftTar,
+                responseButton: leftTarInvisible,
+                flash: flashInvisible,
+                data: {
+                    position: 'l',
+                    shift: 0,
+                    flash: 0,
+                },
+            },
+        ];
+
+        let fixation = {
+            type: 'html-button-response',
+            stimulus: [''],
+            button_html: fixationPoint,
+            choices: [''],
+            data: {
+                test_part: 'fixation',
+            },
+        };
+
+        let waitAfterFix = {
+            type: 'html-keyboard-response',
+            stimulus: fixationPoint,
+            choices: jsPsych.NO_KEYS,
+            data: {
+                test_part: 'fixation',
+            },
+            trial_duration: function () {
+                return jsPsych.randomization.sampleWithoutReplacement([100, 125, 150, 175, 200, 225, 250],
+                    1)[0];
+            },
+
+            on_finish: function (){
+                timer.starttime = jsPsych.totalTime();
+            }
+        };
+
+        let newPoint = {
+            type: "html-button-response",
+            stimulus: jsPsych.timelineVariable('stimulus'),
+            button_html: jsPsych.timelineVariable('responseButton'),
+            choices: [''],
+            data: {
+                test_part: 'decision',
+            },
+            trial_duration: function () {
+                return jsPsych.randomization.sampleWithoutReplacement([50, 100, 125, 150, 175, 200],
+                    1)[0];
+            },
+
+            on_finish: function(data){
+              data.touchX = xyCoords.X;
+              data.touchY = xyCoords.Y;
+            },
+        };
+
+        let showFlash = {
+            type: 'html-button-response',
+            stimulus: jsPsych.timelineVariable('flash'),
+            prompt: jsPsych.timelineVariable('jumpedStim'),
+            button_html: jsPsych.timelineVariable('responseButton'),
+            choices: [''],
+            data: {
+                test_part: 'decision',
+            },
+            trial_duration: 70,
+
+            on_finish: function (data){
+                data.touchX = xyCoords.X;
+                data.touchY = xyCoords.Y;
+                timer.endtime = jsPsych.totalTime();
+            }
+        };
+
+        let waitResponse = {
+            type: "html-button-response",
+            stimulus: jsPsych.timelineVariable('jumpedStim'),
+            button_html: jsPsych.timelineVariable('responseButton'),
+            choices: [''],
+            post_trial_gap: 1000,
+
+            on_finish: function (data){
+                data.touchX = xyCoords.X;
+                data.touchY = xyCoords.Y;
+                data.test_part = 'response';
+                data.full_rt = timer.endtime - timer.starttime + data.rt;
+            },
+        };
+
+        let test_procedure = {
+            timeline: [fixation, waitAfterFix, newPoint, showFlash, waitResponse],
+            timeline_variables: test_stimuli,
+            repetitions: 5,
+            randomize_order: true,
+        };
+        timeline.push(test_procedure);
+
+        /* define debrief */
+
+        let debrief_block = {
+            type: "html-button-response",
+            stimulus: function () {
+
+                let trials = jsPsych.data.get().filter({
+                    test_part: 'response'
+                });
+                let rt = Math.round(trials.select('full_rt').mean());
+
+                return "<p>Your average response time was " + rt + "ms.</p>" +
+                    "<p>Press any key to complete the experiment. Thank you!</p>";
+
+            },
+            choices: ['end experiment']
+        };
+        timeline.push(debrief_block);
+
+        /* start the experiment */
+        jatos.onLoad(function () {
+            jsPsych.init({
+                timeline: timeline,
+                fullscreen: true,
+                on_finish: function() {
+                    let resultJson = jsPsych.data.get().json();
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                },
+            });
+        });
+    </script>
+</body>
+
+
+</html>

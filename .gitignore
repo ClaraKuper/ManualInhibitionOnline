@@ -1,5 +1,8 @@
 img/
-jspsych-6.0.4/*
+jspsych-6.0.4/css
+jspsych-6.0.4/examples
+jspsych-6.0.4/license.txt
+jspsych-6.0.4/jspsych.js
 jspsych-6.0.4/plugins/*
 data/
 !jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js

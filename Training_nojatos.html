@@ -389,10 +389,6 @@
         jsPsych.init({
             timeline: timeline,
             fullscreen: true,
-            on_finish: function() {
-                let resultJson = jsPsych.data.get().json();
-                jatos.submitResultData(resultJson, jatos.startNextComponent);
-            },
         });
     </script>
 </body>

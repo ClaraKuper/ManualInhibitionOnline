@@ -6,3 +6,6 @@ jspsych-6.0.4/jspsych.js
 jspsych-6.0.4/plugins/*
 data/
 !jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js
+2021_JATOS_ManualInhibition_Jump/
+2021_JATOS_ManualInhibition_Serial/
+nojatos/

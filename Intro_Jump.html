@@ -1,13 +1,12 @@
 <!doctype html>
 <!-- Introduction to the Manual Inhibition Experiment -->
 <!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
-<html lang="de">
+<html lang="en">
 
 <head>
-    <title>Introduction</title>
+    <title>Introduction Jumping Dots</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js"></script>
     <script src="jatos.js"></script>
@@ -36,41 +35,21 @@
     <script>
 
         /* create timeline */
-        let demo_timeline = [];
+        let jump_demo_timeline = [];
+        let orientation;
 
-        /* define welcome message trial */
-        let welcome = {
-            type: "fullscreen",
-            message:["<p>Welcome to the experiment!</p>" +
-                    "<p>If you opened this experiment with an app (slack/whatsapp), please close it again, " +
-            "copy the link to your browser and run it from there. Thank you! </p>" +
-            "<p>&nbsp;</p>"+
-            "<p> Press the button below to switch to fullscreen and continue.</p>"],
-            fullscreen_mode: true,
-            data: {
-                test_part: 'tutorial_welcome',
-            }
-        };
-        demo_timeline.push(welcome);
-
-        /* define instructions trial */
-        let general_intro = {
+        /* welcome message to jump tutorial */
+        let jumptut_intro = {
             type: "instructions",
-            pages: ["<p>Please bring your touchscreen device in landscape mode now. If you don't have " +
-                "a touchscreen device, contact the person responsible for the experiment.</p>",
-                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 15 minutes and you shouldn't " +
-                "close the tab during the experiment. You can take breaks whenever you see the central fixation point appear on the screen " +
-                "(dark gray point in the center). You are also free to end the experiment whenever you want, your data will only be saved "+
-                "if you complete the full experiment.</p>",
-                "<p> We will start with a little tutorial.</p>"],
+            pages: ["<p>This is the the first part of the experiment. We will start with a tutorial for you. </p>"],
             show_clickable_nav: true,
             button_label_next: 'Ok. Continue >',
-            post_trial_gap: 1000,
+            post_trial_gap: 200,
             data: {
-                test_part: 'tutorial_intro',
+                test_part: 'general_intro',
             }
         };
-        demo_timeline.push(general_intro);
+        jump_demo_timeline.push(jumptut_intro);
 
         /* define stimulus looks */
         let fixationPoint = "<dot style = 'background-color: #3f3f3f;'></dot>";
@@ -124,7 +103,7 @@
                 test_part: 'tut_preFixation',
             },
         };
-        demo_timeline.push(tutorial_fixation);
+        jump_demo_timeline.push(tutorial_fixation);
 
         let tutorial_waitAfterFix = {
             type: 'html-button-response-touchdown',
@@ -139,7 +118,7 @@
             },
             trial_duration: 1500,
         };
-        demo_timeline.push(tutorial_waitAfterFix);
+        jump_demo_timeline.push(tutorial_waitAfterFix);
 
         let tutorial_newPoint = {
             type: 'html-button-response-touchdown',
@@ -153,24 +132,28 @@
                 test_part: 'tut_newPoint',
             },
         };
-        demo_timeline.push(tutorial_newPoint);
+        jump_demo_timeline.push(tutorial_newPoint);
 
         let demo_intro = {
-            type: "fullscreen",
-            message: ['<p>Great! While you reach out to touch the jumped point, a few things might happen. </p>' +
+            type: "instructions",
+            pages: ['<p>Great! While you reach out to touch the jumped point, a few things might happen. </p>' +
                 "<p> 1. You might see a bright flash on the upper and lower part of the screen.</p>" +
-                "<p> 2. The point might jump a second time, either forwards or backwards. </p>" +
-                "<p>You can completely ignore the flash, it is irrelevant for your task. " +
-                "You should, however, try to catch the point at the new location - if you have time. "+
-                "The experiment has a very rapid pace, as you will see. Try to prioritize speed over accuracy. </p>"+
-                "<p>We will play some trials for you at original speed. The white dot shows a finger touch. Just relax and watch.</p>"],
-            fullscreen_mode: true,
-            post_trial_gap: 1000,
+                "<p> 2. The point might jump a second time, either forwards or backwards. </p>",
+                "<p>You can completely ignore the flash, it is irrelevant for your task. </p>",
+                "<p>When the point jumps, try to catch it at it's new location. </p>"+
+                "<p>The trials have a very rapid pace. That means that your response will be too slow when you wait at the start " +
+                "till the dot has jumped. So instead of waiting, try to adjust your response in flight. It's okay if your response " +
+                "is slightly off. Try to prioritize speed over accuracy. </p>",
+                "<p>We will play some trials to demonstrate the speed of the experiment. The white dot shows a simulated finger touch. " +
+                "You don't need to do anything yet. Just watch.</p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
             data: {
                 test_part: 'demo_intro',
             }
         };
-        demo_timeline.push(demo_intro);
+        jump_demo_timeline.push(demo_intro);
 
         // define demo trials
         let demo_stimuli = [
@@ -329,12 +312,32 @@
             randomize_order: false,
         };
 
-        demo_timeline.push(demo_procedure);
+        jump_demo_timeline.push(demo_procedure);
+
+       if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
 
         /* start the experiment */
         jatos.onLoad(function () {
+
+            jsPsych.data.addProperties({
+                subject: jatos.workerId,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                userInfo: navigator.userAgent,
+                platform: navigator.platform,
+                scrPixDepth: screen.pixelDepth,
+                scrColDepth : screen.colorDepth,
+                scrOrientation: orientation,
+                scrResolution: window.devicePixelRatio,
+                component: 'Intro_Jump',
+            });
+
             jsPsych.init({
-                timeline: demo_timeline,
+                timeline: jump_demo_timeline,
                 fullscreen: true,
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();

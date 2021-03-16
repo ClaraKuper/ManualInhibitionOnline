@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <title>Training Serial Dots</title>
+  <script src="jspsych-6.0.4/jspsych.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-serial.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+  <script src="jatos.js"></script>
+  <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
+  <style>
+        p {
+            font-size: 1em;
+        }
+        dot {
+            position:absolute;
+            display:inline;
+            top: 50%;
+            height: 50px;
+            width: 50px;
+            background-color: #000000;
+            border-radius: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+  </style>
+  <meta name="viewport" content="width=device-width">
+</head>
+
+  <body bgcolor='gray'>
+    <script>
+        let serial_training_timeline = [];
+        let responseGiven;
+        let orientation;
+
+
+        let buttonPoint1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>"+
+                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
+        let buttonPoint2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>"+
+                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
+        let buttonPoint3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>"+
+                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+
+         let buttonPoint4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+                "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
+        let buttonPoint5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
+        let buttonPoint6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+                "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+
+
+        let training_trial = {
+          type: 'html-button-response-serial',
+          stimulus: '',
+          choices: ['','','','','',''],
+          button_html: [buttonPoint1,buttonPoint2,buttonPoint3,buttonPoint4,buttonPoint5,buttonPoint6],
+          post_trial_gap: 500,
+          data:{
+            test_part: 'Clicks',
+          },
+          on_finish:  function(data){
+            let newA = [];
+            for (let i = 1; i < data.choiceOrder.length; i++)  newA.push(data.choiceOrder[i] - data.choiceOrder[i - 1]);
+            let absA = [];
+            for (let i = 1; i<newA.length; i++) absA.push(Math.abs(newA[i]));
+
+            responseGiven = absA.every( (val, i, arr) => val === 1 );
+          },
+        };
+
+        let feedback = {
+            type: 'html-button-response',
+            stimulus: function () {
+                if (responseGiven) {
+                    return "<p>Well Done.</p>"
+                } else {
+                    return "<p>Please follow the order.</p>"
+                }
+            },
+            trial_duration: 1000,
+            post_trial_gap: 500,
+            choices: ['Next Trial'],
+            data:{
+                test_part: 'feedback',
+                response: responseGiven,
+            },
+        };
+
+        let training_procedure = {
+          timeline: [training_trial, feedback],
+          repetitions: 1,
+        };
+        serial_training_timeline.push(training_procedure);
+
+        // let them know that the training is over
+        let end_instructions = {
+            type: 'instructions',
+            pages: ["<p>That's the end of the training block.</p>" +
+            "<p>Let's start the experiment.</p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'intro',
+            }
+        };
+        serial_training_timeline.push(end_instructions);
+
+       if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
+
+        jatos.onLoad(function () {
+
+          jsPsych.data.addProperties({
+              subject: jatos.workerId,
+              screenWidth: screen.width,
+              screenHeight: screen.height,
+              userInfo: navigator.userAgent,
+              platform: navigator.platform,
+              scrPixDepth: screen.pixelDepth,
+              scrColDepth : screen.colorDepth,
+              scrOrientation: orientation,
+              scrResolution: window.devicePixelRatio,
+              component: 'Training_Serial',
+          });
+
+            jsPsych.init({
+                timeline: serial_training_timeline,
+                fullscreen: true,
+                on_finish: function() {
+                    let resultJson = jsPsych.data.get().json();
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                }
+            });
+        });
+    </script>
+  </body>
+</html>

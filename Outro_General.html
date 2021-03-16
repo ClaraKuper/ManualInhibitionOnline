@@ -1,15 +1,15 @@
 <!doctype html>
 <!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
-<html lang="de">
+<html lang="en">
 
 <head>
-    <title>Pointing experiment</title>
+    <title>Final Questionaire</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-survey-likert.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+    <script src="jatos.js"></script>
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
     <style>
         p {
@@ -36,6 +36,7 @@
         /* create timeline */
         let timeline = [];
         let scale = ["Concentrated", "Somewhat Concentrated", "Neutral", "Somewhat Distracted", "Distracted"];
+        let orientation;
 
         let control = {
             type: 'survey-likert',
@@ -68,10 +69,38 @@
         };
         timeline.push(debrief_block);
 
+       if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
+
+
         /* start the experiment */
-        jsPsych.init({
-            timeline: timeline,
-            fullscreen: true,
+        jatos.onLoad(function () {
+
+            jsPsych.data.addProperties({
+                subject: jatos.workerId,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                userInfo: navigator.userAgent,
+                platform: navigator.platform,
+                scrPixDepth: screen.pixelDepth,
+                scrColDepth : screen.colorDepth,
+                scrOrientation: orientation,
+                scrResolution: window.devicePixelRatio,
+                component: 'Outro_General',
+            });
+
+
+            jsPsych.init({
+                timeline: timeline,
+                fullscreen: true,
+                on_finish: function() {
+                    let resultJson = jsPsych.data.get().json();
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                },
+            });
         });
     </script>
 </body>

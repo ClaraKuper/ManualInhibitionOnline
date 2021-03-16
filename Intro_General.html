@@ -1,0 +1,115 @@
+<!doctype html>
+<!-- Introduction to the Manual Inhibition Experiment -->
+<!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
+<html lang="en">
+
+<head>
+    <title>General Introduction</title>
+    <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
+    <script src="jspsych-6.0.4/jspsych.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jatos.js"></script>
+    <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
+    <style>
+        p {
+            font-size: 1em;
+        }
+        dot {
+            position:absolute;
+            display: inline;
+            top: 50%;
+            height: 50px;
+            width: 50px;
+            background-color: #000000;
+            border-radius: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width">
+
+</head>
+
+<body bgcolor='gray'>
+    <script>
+
+        console.log('Welcome, my nerdy hacker friend. =)');
+
+        // generate a unique subject code
+        subject_ID =  jsPsych.randomization.randomID(15);
+        //jatos.setStudySessionData({subject: subject_ID});
+
+        let welcome_timeline = [];
+        let orientation;
+
+        /* define welcome message trial */
+        let welcome = {
+            type: "instructions",
+            pages:["<p>Welcome to the experiment!</p>" +
+                    "<p>If you opened this experiment with an app (slack/whatsapp), please close it again, " +
+            "copy the link to your browser and run it from there. Thank you! </p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'general_welcome',
+            }
+        };
+        welcome_timeline.push(welcome);
+
+        /* define instructions trial */
+        let general_intro = {
+            type: "instructions",
+            pages: ["<p>Please bring your touchscreen device in landscape mode now. If you don't have " +
+                "a touchscreen device, contact the person responsible for the experiment.</p>",
+                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 20 minutes and you shouldn't " +
+                "close the tab during the experiment. You can take breaks whenever you see the central fixation point appear on the screen " +
+                "(dark gray point in the center). You are also free to end the experiment whenever you want, your data will only be saved "+
+                "if you complete the full experiment.</p>",
+                "<p>This experiment has two parts with slightly different tasks. Before each part, we will introduce you to the upcoming " +
+                "task. The parts are run after each other, so you only have to concentrate on doing one at a time.</p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 1000,
+            data: {
+                test_part: 'general_intro',
+            }
+        };
+        welcome_timeline.push(general_intro);
+
+       if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
+        /* start the experiment */
+        jatos.onLoad(function () {
+
+            jsPsych.data.addProperties({
+                subject: jatos.workerId,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                userInfo: navigator.userAgent,
+                platform: navigator.platform,
+                scrPixDepth: screen.pixelDepth,
+                scrColDepth : screen.colorDepth,
+                scrOrientation: orientation,
+                scrResolution: window.devicePixelRatio,
+                component: 'Intro_General',
+            });
+
+
+            jsPsych.init({
+                timeline: welcome_timeline,
+                fullscreen: true,
+                on_finish: function() {
+                    let resultJson = jsPsych.data.get().json();
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                },
+            });
+        });
+    </script>
+</body>
+
+
+</html>

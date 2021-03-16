@@ -16,7 +16,6 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     // variables to track
   let js_lifttime;
   let stimRect;
-  let allTouches = [];
 
   let xyCoords = {
       liftX: null,
@@ -24,11 +23,6 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
       touchX: null,
       touchY: null,
   };
-
-  let xyCrossScreen = {
-    touchX: null,
-    touchY: null,
-};
 
   plugin.info = {
     name: 'html-button-response-touchdown',
@@ -131,19 +125,6 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     // start time
     var start_time = jsPsych.totalTime();
 
-    // record all touches across the document
-    document.addEventListener('touchstart', function(e){
-
-        xyCrossScreen.touchX = e.pageX;
-        xyCrossScreen.touchY = e.pageY;
-        if (xyCrossScreen.touchX == null){
-          xyCrossScreen.touchX = e.touches[0].pageX;
-          xyCrossScreen.touchY = e.touches[0].pageY;
-        };
-
-        allTouches.push(xyCrossScreen.touchX,xyCrossScreen.touchY. performance.now());
-    })
-
     // add event listeners to buttons
     for (var i = 0; i < trial.choices.length; i++) {
       display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('touchstart', onTouchStart);
@@ -229,9 +210,6 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
         "js_touchup": js_lifttime,
         "js_end": jsPsych.totalTime(),
         "xy_stim": stimRect,
-        "button0-x": document.querySelector('#jspsych-html-button-response-button-0').getBoundingClientRect().x,
-        "button0-y": document.querySelector('#jspsych-html-button-response-button-0').getBoundingClientRect().y,
-        "all_touches": allTouches
       };
 
       // remove all event listeners

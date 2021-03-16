@@ -1,13 +1,12 @@
 <!doctype html>
 <!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
-<html lang="de">
+<html lang="en">
 
 <head>
-    <title>Training</title>
+    <title>Experiment Block Jumping Dots</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js"></script>
     <script src="jatos.js"></script>
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
@@ -17,7 +16,7 @@
         }
         dot {
             position:absolute;
-            display: inline;
+            display:inline;
             top: 50%;
             height: 50px;
             width: 50px;
@@ -26,14 +25,13 @@
             margin-top: -25px;
             margin-left: -25px;
         }
-
     </style>
 
     <meta name="viewport" content="width=device-width">
+
 </head>
 
 <body bgcolor='gray'>
-
     <script>
 
         /* create timeline */
@@ -41,21 +39,8 @@
         let responseGiven = false;
         let earlyResponse = false;
         let timer = {};
-        let scrWidth = screen.width;
-        let scrHeight = screen.height;
-        let userInfo = navigator.userAgent;
+        let orientation;
 
-        // let them know that the instruction part is over and that the test part starts
-        let instructions = {
-            type: 'fullscreen',
-            message: ["<p>That was the demonstration. We will now do some training trials for you.</p>"],
-            fullscreen_mode: true,
-            post_trial_gap: 1000,
-            data: {
-                test_part: 'training_welcome',
-            }
-        };
-        timeline.push(instructions);
 
         /* define stimulus looks */
         let fixationPoint = "<dot style = 'background-color: #3f3f3f;'></dot>";
@@ -64,32 +49,32 @@
 
         let invisibleCentralPoint = "<dot style = 'background-color: rgba(153,31,35,0);'></dot>";
 
-        let rightTar = "<dot style = 'right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+        let rightTar = "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px'></dot>";
 
-        let rightTarResp = "<dot style = 'right:calc(50% - 200px); margin-left:0; margin-right: -25px;" +
+        let rightTarResp = "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px;" +
                 "background-color: rgba(0,0,0,0);'></dot>";
 
         // invisible right tar
-        let rightTarInvisible = "<dot style= 'right:calc(50% - 200px); width:300px; height:300px; " +
+        let rightTarInvisible = "<dot style= 'right:calc(50% - 150px); width:300px; height:300px; " +
             "margin-top: -150px; margin-right: -150px; margin-left: 0;  background-color:rgba(56,153,53,0);'></dot>";
 
 
-        let leftTar = "<dot style = 'left:calc(50% - 200px);'></dot>";
+        let leftTar = "<dot style = 'left:calc(50% - 150px);'></dot>";
 
-        let leftTarResp = "<dot style = 'left:calc(50% - 200px);" +
+        let leftTarResp = "<dot style = 'left:calc(50% - 150px);" +
                 "background-color: rgba(0,0,0,0);'></dot>";
 
         // invisible left Tar
-        let leftTarInvisible = "<dot style='left:calc(50% - 200px); width:300px; height:300px; " +
+        let leftTarInvisible = "<dot style='left:calc(50% - 150px); width:300px; height:300px; " +
             "margin-top: -150px; margin-left: -150px; background-color:rgba(153,31,35,0);'></dot>";
 
-        let rightTarShiftIn =  "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px'></dot>";
+        let rightTarShiftIn =  "<dot style = 'right:calc(50% - 100px); margin-left:0; margin-right: -25px'></dot>";
 
-        let rightTarShiftOut =  "<dot style = 'right:calc(50% - 250px); margin-left:0; margin-right: -25px'></dot>";
+        let rightTarShiftOut =  "<dot style = 'right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
 
-        let leftTarShiftIn = "<dot style = 'left:calc(50% - 150px); '></dot>";
+        let leftTarShiftIn = "<dot style = 'left:calc(50% - 100px); '></dot>";
 
-        let leftTarShiftOut = "<dot style = 'left:calc(50% - 250px);'></dot>";
+        let leftTarShiftOut = "<dot style = 'left:calc(50% - 200px);'></dot>";
 
         let flashVisible = "<div id='rectangle' style='position:absolute; left:0; top:0;" +
                 "width:100%; height:33%; background-color:#ffffff;'></div>" +
@@ -108,7 +93,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTarShiftIn,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashVisible,
                 position: 'r',
                 shift: 1,
@@ -120,7 +105,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTarShiftOut,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashVisible,
                 position: 'r',
                 shift: 1,
@@ -132,7 +117,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTar,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashVisible,
                 position: 'r',
                 shift: 0,
@@ -144,7 +129,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTarShiftIn,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashInvisible,
                 position: 'r',
                 shift: 1,
@@ -156,7 +141,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTarShiftOut,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashInvisible,
                 position: 'r',
                 shift: 1,
@@ -168,7 +153,7 @@
             {
                 stimulus: rightTar,
                 jumpedStim: rightTar,
-                responseButton: [rightTarInvisible, invisibleCentralPoint, rightTarResp],
+                responseButton: [rightTarInvisible,invisibleCentralPoint, rightTarResp],
                 flash: flashInvisible,
                 position: 'r',
                 shift: 0,
@@ -227,7 +212,7 @@
             // trial type 7.2: target left, no flash, shift outwards
             {
                 stimulus: leftTar,
-                jumpedStim: leftTarShiftIn,
+                jumpedStim: leftTarShiftOut,
                 responseButton: [leftTarInvisible,invisibleCentralPoint, leftTarResp],
                 flash: flashInvisible,
                 position: 'l',
@@ -248,6 +233,19 @@
                 flashshown: 0,
             },
         ];
+
+        let confirm_fullscreen = {
+            type: "fullscreen",
+            message:["<p>Click below to change to fullscreen mode.</p>"],
+            fullscreen_mode: true,
+            button_label: 'Fullscreen',
+            data: {
+                test_part: 'fullscreen_request',
+            }
+        };
+
+        timeline.push(confirm_fullscreen);
+
 
         let fixation = {
             type: 'html-button-response-touchdown',
@@ -278,9 +276,7 @@
 
             on_finish: function (data){
                 timer.starttime = jsPsych.totalTime();
-                // get information if button was pressed early and punish if neccessary
-                console.log('touchup: ', data.js_touchup);
-                console.log('time: ', timer.fixtime);
+                // get information if button was pressed early and punish if necessary
                 earlyResponse = data.js_touchup >= timer.fixtime;
             }
         };
@@ -328,7 +324,7 @@
             stimulus: jsPsych.timelineVariable('jumpedStim'),
             button_html: jsPsych.timelineVariable('responseButton'),
             choices: ['', '', ''],
-            trial_duration: 400,
+            trial_duration: 300,
             post_trial_gap: 10,
             data: {
                 test_part: 'response',
@@ -347,6 +343,7 @@
 
         let feedback = {
             type: 'html-button-response-touchdown',
+            button_html: [''],
             stimulus: function () {
                 if (earlyResponse) {
                     return "<p>Please keep you finger at fixation till the point jumps!</p>"
@@ -356,38 +353,45 @@
                     return "<p>Well Done.</p>"
                 }
             },
+            trial_duration: 1000,
             post_trial_gap: 500,
-            choices: ['Next Trial'],
+            choices: [''],
             data:{
                 test_part: 'feedback',
             },
         };
 
-        // define a training procedure
-
-        let training_procedure = {
+        let test_procedure = {
             timeline: [fixation, waitAfterFix, newPoint, showFlash, waitResponse, feedback],
             timeline_variables: test_stimuli,
-            repetitions: 2,
+            repetitions: 1,
             randomize_order: true,
         };
 
-        timeline.push(training_procedure);
+        timeline.push(test_procedure);
 
-        // let them know that the training is over
-        let end_instructions = {
-            type: 'fullscreen',
-            message: ["<p>That's the end of the training block.</p>"],
-            fullscreen: true,
-            post_trial_gap: 1000,
-            data: {
-                test_part: 'intro',
-            }
-        };
-        timeline.push(end_instructions);
+        if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
 
         /* start the experiment */
         jatos.onLoad(function () {
+
+            jsPsych.data.addProperties({
+                subject: jatos.workerId,
+                screenWidth: screen.width,
+                screenHeight: screen.height,
+                userInfo: navigator.userAgent,
+                platform: navigator.platform,
+                scrPixDepth: screen.pixelDepth,
+                scrColDepth : screen.colorDepth,
+                scrOrientation: orientation,
+                scrResolution: window.devicePixelRatio,
+                component: 'Trials_Jump',
+            });
+
             jsPsych.init({
                 timeline: timeline,
                 fullscreen: true,

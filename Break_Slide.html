@@ -1,0 +1,77 @@
+<!doctype html>
+<!-- Introduction to the Manual Inhibition Experiment -->
+<!-- Example taken from http://www.jspsych.org/tutorials/rt-task/ and adapted for the use with JATOS -->
+<html lang="en">
+
+<head>
+    <title>Break Between Blocks</title>
+    <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
+    <script src="jspsych-6.0.4/jspsych.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jatos.js"></script>
+    <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
+    <style>
+        p {
+            font-size: 1em;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width">
+
+</head>
+
+<body bgcolor='gray'>
+    <script>
+
+        let break_timeline = [];
+        let orientation;
+
+        /* define welcome message trial */
+        let welcome = {
+            type: "instructions",
+            pages:["<p>Time for a break.</p>" +
+                    "<p>Click continue when you're ready to go on. </p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'break',
+            }
+        };
+        break_timeline.push(welcome);
+
+       if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
+
+        /* start the experiment */
+        jatos.onLoad(function () {
+            jsPsych.init({
+                on_start: function () {
+                    jsPsych.data.addProperties({
+                        subject: jatos.workerId,
+                        screenWidth: screen.width,
+                        screenHeight: screen.height,
+                        userInfo: navigator.userAgent,
+                        platform: navigator.platform,
+                        scrPixDepth: screen.pixelDepth,
+                        scrColDepth : screen.colorDepth,
+                        scrOrientation: orientation,
+                        scrResolution: window.devicePixelRatio,
+                        component: 'Break_General',
+                    });
+                },
+                timeline: break_timeline,
+                fullscreen: true,
+                on_finish: function() {
+                    let resultJson = jsPsych.data.get().json();
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                },
+            });
+        });
+    </script>
+</body>
+
+
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+
+<head>  
+  <script src="jspsych-6.0.4/jspsych.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-serial.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+  <script src="jatos.js"></script>
+  <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
+  <style>
+        p {
+            font-size: 1em;
+        }
+        dot {
+            position:absolute;
+            display:inline;
+            top: 50%;
+            height: 50px;
+            width: 50px;
+            background-color: #000000;
+            border-radius: 50%;
+            margin-top: -25px;
+            margin-left: -25px;
+        }
+  </style>
+</head>
+
+<script>
+    let timeline = [];
+    let scrWidth = screen.width;
+    let scrHeight = screen.height;
+
+    let responseGiven;
+
+
+    let buttonPoint1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
+    let buttonPoint2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
+    let buttonPoint3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+
+     let buttonPoint4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
+    let buttonPoint5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+        "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
+    let buttonPoint6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
+            "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+
+    // generate a random subject ID with 15 characters
+    var subject_id = jsPsych.randomization.randomID(15);
+
+    var fullscreen_trial = {
+      type: 'fullscreen',
+      message:['<p>Welcome to the experiment!</p>' +
+          '<p>&nbsp;</p>'+
+          '<p>Please keep your device in landscape mode. </p>' +
+          '<p> Press the button below to switch to fullscreen and continue.</p>'],
+      fullscreen_mode: true,
+      data: {
+        test_part: 'WelcomeSerial',
+      }
+    };
+    timeline.push(fullscreen_trial);
+
+    /* define instructions trial */
+    var instructions = {
+      type: 'instructions',
+      pages: ['<p>In this block, six points will appear on screen in a row. </p>' +
+          '<p>Touch all the points in order to collect them as fast as possible. </p>' +
+          '<p>Sometimes, a flash will appear on screen. You can ignore it.</p>'+
+          '<p>&nbsp;</p>'+
+          '<p>Press continue to begin.</p>'],
+      show_clickable_nav: true,
+      button_label_next: 'Continue',
+      post_trial_gap: 500,
+      data: {
+        test_part: 'InstructionsSerial',
+      }
+
+    };
+    timeline.push(instructions);
+
+    var trial = {
+      type: 'html-button-response-serial',
+      stimulus: '',
+      choices: ['','','','','',''],
+      button_html: [buttonPoint1,buttonPoint2,buttonPoint3,buttonPoint4,buttonPoint5,buttonPoint6],
+      post_trial_gap: 500,
+      data:{
+        test_part: 'Clicks',
+      },
+      on_finish:  function(data){
+        let newA = [];
+        for (let i = 1; i < data.choiceOrder.length; i++)  newA.push(data.choiceOrder[i] - data.choiceOrder[i - 1]);
+        let absA = [];
+        for (let i = 1; i<newA.length; i++) absA.push(Math.abs(newA[i]));
+
+        responseGiven = absA.every( (val, i, arr) => val === 1 );
+        console.log(responseGiven);
+      },
+    };
+
+    let feedback = {
+        type: 'html-button-response',
+        button_html: [''],
+        stimulus: function () {
+            if (responseGiven) {
+                return "<p>Well Done.</p>"
+            } else {
+                return "<p>Please follow the order.</p>"
+            }
+        },
+        trial_duration: 1000,
+        post_trial_gap: 500,
+        choices: [''],
+        data:{
+            test_part: 'feedback',
+            response: responseGiven,
+        },
+    };
+
+    var test_procedure = {
+      timeline: [trial, feedback],
+      repetitions: 10,
+    };
+    timeline.push(test_procedure);
+
+    var debrief_block = {
+      type: 'instructions',
+      pages: ['<p>Thank you for participating!</p>'],
+      show_clickable_nav: true,
+      button_label_next: 'End experiment',
+      data: {
+        test_part: 'DebriefSerial',
+      },
+    };
+    timeline.push(debrief_block);
+
+    jsPsych.data.addProperties({
+        subject: subject_id,
+        screenWidth: scrWidth,
+        screenHeight: scrHeight,
+    });
+
+    jatos.onLoad(function () {
+        jsPsych.init({
+            timeline: timeline,
+            fullscreen: true,
+            on_finish: function() {
+                var resultJson = jsPsych.data.get().json();
+                jatos.submitResultData(resultJson, jatos.startNextComponent);
+            }
+        });
+    });
+</script>
+
+</html>

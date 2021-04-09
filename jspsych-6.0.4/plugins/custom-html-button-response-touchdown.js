@@ -11,24 +11,8 @@
 
 jsPsych.plugins["html-button-response-touchdown"] = (function() {
 
+  // define plugin info
   var plugin = {};
-
-    // variables to track
-  let js_lifttime;
-  let stimRect;
-  let allTouches = [];
-
-  let xyCoords = {
-      liftX: null,
-      liftY: null,
-      touchX: null,
-      touchY: null,
-  };
-
-  let xyCrossScreen = {
-    touchX: null,
-    touchY: null,
-};
 
   plugin.info = {
     name: 'html-button-response-touchdown',
@@ -95,6 +79,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
 
   plugin.trial = function(display_element, trial) {
 
+    // make the html info
     // display stimulus
     var html = '<div id="jspsych-html-button-response-stimulus">'+trial.stimulus+'</div>';
 
@@ -118,18 +103,42 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     }
     html += '</div>';
 
+    // create flashes
+
+    html += "<div id='flashup' style='position:absolute; left:0; top:0; width:100%; height:33%; background-color:rgba(255,255,255,0);'></div>";
+    html += "<div id='flashdown' style='position:absolute; left:0; bottom:0; width:100%; height:33%; background-color:rgba(255,255,255,0);'></div>";
+
+
     //show prompt if there is one
     if (trial.prompt !== null) {
       html += trial.prompt;
     }
     display_element.innerHTML = html;
 
-    // get the position of the stimulus
-    //stimRect = display_element.querySelector('#jspsych-html-button-response-stimulus').;
-    //console.log(stimRect);
+    // variables to track
+    let js_lifttime;
+    let stimRect;
+    let allTouches = [];
+    let targetTouched = false;
+    let trialTimes = [];
 
-    // start time
-    var start_time = jsPsych.totalTime();
+    let flashOn;
+    let flashOff;
+
+    let xyCoords = {
+        liftX: null,
+        liftY: null,
+        touchX: null,
+        touchY: null,
+    };
+
+    let xyCrossScreen = {
+      touchX: null,
+      touchY: null,
+    };
+
+    // define flash time
+    let flash_time = Math.random()*200;
 
     // record all touches across the document
     document.addEventListener('touchstart', function(e){
@@ -141,7 +150,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
           xyCrossScreen.touchY = e.touches[0].pageY;
         };
 
-        allTouches.push(xyCrossScreen.touchX,xyCrossScreen.touchY. performance.now());
+        allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
     })
 
     // add event listeners to buttons
@@ -150,8 +159,6 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
       display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('touchend', onTouchEnd);
       //display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('mousedown', onTouchStart);
       //display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('mouseup', onTouchEnd);
-      //let rect = display_element.querySelector('#jspsych-html-button-response-button-' + i).getBoundingClientRect();
-      //console.log(rect)
     };
 
     function onTouchEnd(e){
@@ -173,6 +180,52 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
         };
 
         after_response(choice);
+        targetTouched = true;
+      };
+
+
+    // start time
+    let start_time = jsPsych.totalTime();
+
+    // set variables to track the appearance/disappearence of the flash
+    let showflash = true;
+    let hideflash = true;
+    let in_trial = true;
+
+    // trial run function
+    let run_trial = function () {
+          let time_passed = jsPsych.totalTime() - start_time;
+          if (time_passed < trial.trial_duration && in_trial) {
+              // this code runs till the time is over
+              // check if it's time to show the flash
+              if (time_passed >= flash_time && showflash) {
+                if (trial.show_flash){
+                  document.getElementById('flashup').style.backgroundColor = 'rgb(255,255,255)';
+                  document.getElementById('flashdown').style.backgroundColor = 'rgb(255,255,255)';
+                } else {
+                  document.getElementById('flashup').style.backgroundColor = 'rgb(255,255,255,0)';
+                  document.getElementById('flashdown').style.backgroundColor = 'rgb(255,255,255,0)';
+                };
+
+                flashOn = jsPsych.totalTime();
+                showflash = false;
+
+                // or time to remove the flash
+              } else if (time_passed >= flash_time + trial.flash_dur && hideflash) {
+                document.getElementById('flashup').style.backgroundColor = 'rgba(255,255,255,0)';
+                document.getElementById('flashdown').style.backgroundColor = 'rgba(255,255,255,0)';
+
+                flashOff = jsPsych.totalTime();
+                hideflash = false;
+              }
+              ;
+
+              // get a time series how often/when this function was called
+              trialTimes.push(time_passed);
+
+              // repeat this function after 5 ms
+              setTimeout(run_trial, 5);
+            }
       };
 
     // store response
@@ -204,7 +257,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
       }
 
       if (trial.response_ends_trial) {
-        end_trial();
+        setTimeout(end_trial,100);
       }
     };
 
@@ -257,6 +310,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
       }, trial.trial_duration);
     }
 
+  run_trial();
   };
 
   return plugin;

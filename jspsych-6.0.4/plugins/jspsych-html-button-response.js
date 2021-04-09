@@ -1,31 +1,19 @@
 /**
- * jspsych-html-button-response-touchdown
+ * jspsych-html-button-response
  * Josh de Leeuw
  *
- * plugin for displaying a stimulus and getting a touch response
- * edited by Clara Kuper 2021
- * edited version works for touch responses and includes time stamps for touch events
+ * plugin for displaying a stimulus and getting a keyboard response
+ *
  * documentation: docs.jspsych.org
  *
  **/
 
-jsPsych.plugins["html-button-response-touchdown"] = (function() {
+jsPsych.plugins["html-button-response"] = (function() {
 
   var plugin = {};
 
-    // variables to track
-  let js_lifttime;
-  let stimRect;
-
-  let xyCoords = {
-      liftX: null,
-      liftY: null,
-      touchX: null,
-      touchY: null,
-  };
-
   plugin.info = {
-    name: 'html-button-response-touchdown',
+    name: 'html-button-response',
     description: '',
     parameters: {
       stimulus: {
@@ -88,9 +76,8 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
   }
 
   plugin.trial = function(display_element, trial) {
-
     // display stimulus
-    var html = '<div id="jspsych-html-button-response-stimulus">'+trial.stimulus+'</div>';
+    var html = '<div id="jspsych-html-button-response-stimulus">' + trial.stimulus + '</div>';
 
     //display buttons
     var buttons = [];
@@ -108,7 +95,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     html += '<div id="jspsych-html-button-response-btngroup">';
     for (var i = 0; i < trial.choices.length; i++) {
       var str = buttons[i].replace(/%choice%/g, trial.choices[i]);
-      html += '<div class="jspsych-html-button-response-button" style="display: inline-block; margin:'+trial.margin_vertical+' '+trial.margin_horizontal+'" id="jspsych-html-button-response-button-' + i +'" data-choice="'+i+'">'+str+'</div>';
+      html += '<div class="jspsych-html-button-response-button" style="display: inline-block; margin:' + trial.margin_vertical + ' ' + trial.margin_horizontal + '" id="jspsych-html-button-response-button-' + i + '" data-choice="' + i + '">' + str + '</div>';
     }
     html += '</div>';
 
@@ -118,43 +105,16 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     }
     display_element.innerHTML = html;
 
-    // get the position of the stimulus
-    //stimRect = display_element.querySelector('#jspsych-html-button-response-stimulus').;
-    //console.log(stimRect);
-
     // start time
-    var start_time = jsPsych.totalTime();
+    var start_time = Date.now();
 
     // add event listeners to buttons
     for (var i = 0; i < trial.choices.length; i++) {
-      display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('touchstart', onTouchStart);
-      display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('touchend', onTouchEnd);
-      //display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('mousedown', onTouchStart);
-      //display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('mouseup', onTouchEnd);
-      //let rect = display_element.querySelector('#jspsych-html-button-response-button-' + i).getBoundingClientRect();
-      //console.log(rect)
-    };
-
-    function onTouchEnd(e){
-      // handles lift events
-      let lift_time = jsPsych.totalTime();
-      js_lifttime = lift_time;
-      xyCoords.liftX = xyCoords.touchX;
-      xyCoords.liftY = xyCoords.touchY;
-    }
-
-    function onTouchStart(e){
-        // handles touch events
+      display_element.querySelector('#jspsych-html-button-response-button-' + i).addEventListener('click', function (e) {
         var choice = e.currentTarget.getAttribute('data-choice'); // don't use dataset for jsdom compatibility
-        xyCoords.touchX = e.pageX;
-        xyCoords.touchY = e.pageY;
-        if (xyCoords.touchX == null){
-          xyCoords.touchX = e.touches[0].pageX;
-          xyCoords.touchY = e.touches[0].pageY;
-        };
-
         after_response(choice);
-      };
+      });
+    }
 
     // store response
     var response = {
@@ -166,21 +126,19 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     function after_response(choice) {
 
       // measure rt
-      var end_time = jsPsych.totalTime();
+      var end_time = Date.now();
       var rt = end_time - start_time;
-      js_endtime = end_time;
       response.button = choice;
       response.rt = rt;
 
       // after a valid response, the stimulus will have the CSS class 'responded'
       // which can be used to provide visual feedback that a response was recorded
-      display_element.querySelector('#jspsych-html-button-response-stimulus').className += 'responded';
+      display_element.querySelector('#jspsych-html-button-response-stimulus').className += ' responded';
 
       // disable all the buttons after a response
       var btns = document.querySelectorAll('.jspsych-html-button-response-button button');
-      for(var i=0; i<btns.length; i++){
-        //btns[i].removeEventListener('touchstart', eventResponse);
-        //btns[i].removeEventListener('touchend', handlelift);
+      for (var i = 0; i < btns.length; i++) {
+        //btns[i].removeEventListener('click');
         btns[i].setAttribute('disabled', 'disabled');
       }
 
@@ -200,19 +158,8 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
         "rt": response.rt,
         "stimulus": trial.stimulus,
         "button_pressed": response.button,
-        "touchX": xyCoords.touchX,
-        "touchY": xyCoords.touchY,
-        "liftX": xyCoords.liftX,
-        "liftY": xyCoords.liftY,
-        // custom timing
-        "js_start": start_time,
-        "js_touchdown": js_endtime,
-        "js_touchup": js_lifttime,
-        "js_end": jsPsych.totalTime(),
-        "xy_stim": stimRect,
+        "trialShown": true,
       };
-
-      // remove all event listeners
 
       // clear the display
       display_element.innerHTML = '';
@@ -223,18 +170,17 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
 
     // hide image if timing is set
     if (trial.stimulus_duration !== null) {
-      jsPsych.pluginAPI.setTimeout(function() {
+      jsPsych.pluginAPI.setTimeout(function () {
         display_element.querySelector('#jspsych-html-button-response-stimulus').style.visibility = 'hidden';
       }, trial.stimulus_duration);
     }
 
     // end trial if time limit is set
     if (trial.trial_duration !== null) {
-      jsPsych.pluginAPI.setTimeout(function() {
+      jsPsych.pluginAPI.setTimeout(function () {
         end_trial();
       }, trial.trial_duration);
     }
-
   };
 
   return plugin;

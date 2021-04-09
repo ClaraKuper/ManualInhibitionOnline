@@ -3,9 +3,9 @@
 <html lang="en">
 
 <head>
-  <title>Training Serial Dots</title>
+  <title>Introduction Serial Dots</title>
   <script src="jspsych-6.0.4/jspsych.js"></script>
-  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-serial.js"></script>
+  <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
@@ -25,31 +25,58 @@
           border-radius: 50%;
           margin-top: -25px;
           margin-left: -25px;
+          -webkit-touch-callout: none;
+          -webkit-user-select: none;
       }
   </style>
-  <meta name="viewport" content="width=device-width">
+  <!-- below, we prevent scaling and marking -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
 <body bgcolor='gray'>
 
 <script>
-  let serial_demo_timeline = [];
-  let responseGiven;
-  let orientation;
 
-  let buttonPoint1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>"+
-          "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
-  let buttonPoint2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>"+
-          "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
-  let buttonPoint3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>"+
-          "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+  // salute the hacker
+  console.log('Wheee');
 
-  let buttonPoint4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-          "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
-  let buttonPoint5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-      "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
-  let buttonPoint6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-          "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+  // define all arrays we will need
+  let timeline = [];
+  let timelineVariables = [];
+
+  // define booleans
+  let lateResponse;
+  let orderResponse;
+
+  // define screen orientation to monitor user
+  let scrOrientation;
+  // get screen orientation information
+  if (typeof screen.orientation === 'undefined'){
+     // if screen.orientation doesn't work, check if the device is broader than high.
+      scrOrientation = [screen.innerHeight<screen.innerWidth, 'rel']
+  } else {
+      scrOrientation = [screen.orientation.angle, 'angle']
+  }
+
+  // define all html style elements without their id (id is added in the plugin)
+  let buttonVisible1 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
+  let buttonVisible2 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
+  let buttonVisible3 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+  let buttonVisible4 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
+  let buttonVisible5 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
+  let buttonVisible6 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+  let visibleButtons = [buttonVisible1, buttonVisible2, buttonVisible3, buttonVisible4, buttonVisible5, buttonVisible6];
+
+  let buttonInvisible1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>";
+  let buttonInvisible2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>";
+  let buttonInvisible3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>";
+  let buttonInvisible4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+  let buttonInvisible5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+  let buttonInvisible6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+  let invisibleButtons = [buttonInvisible1, buttonInvisible2, buttonInvisible3, buttonInvisible4, buttonInvisible5, buttonInvisible6];
+
+  let flashUpVisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
+  let flashDownVisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
 
 
   /* welcome message to jump tutorial */
@@ -66,32 +93,31 @@
         test_part: 'serial_intro',
     }
   };
-  serial_demo_timeline.push(serialtut_intro);
+  timeline.push(serialtut_intro);
 
+  // define one trial in which no flash is displayed, with 10 sec time to respond
   let noflash_serial = {
-    type: 'html-button-response-serial',
-    stimulus: '',
-    choices: ['','','','','',''],
-    button_html: [buttonPoint1,buttonPoint2,buttonPoint3,buttonPoint4,buttonPoint5,buttonPoint6],
-    post_trial_gap: 500,
+    type: 'manual-inhibition-serial',
+    buttonsVisible: visibleButtons,
+    buttonsInvisible: invisibleButtons,
+    flashUp: '',
+    flashDown: '',
+    flashDuration: 0,
+    flashTime: 0,
+    trialDuration: 10000,
+    waitAfter: 500,
     data:{
       test_part: 'serial_test_noflash',
     },
-    on_finish:  function(data){
-      let newA = [];
-      for (let i = 1; i < data.choiceOrder.length; i++)  newA.push(data.choiceOrder[i] - data.choiceOrder[i - 1]);
-      let absA = [];
-      for (let i = 1; i<newA.length; i++) absA.push(Math.abs(newA[i]));
-      responseGiven = absA.every( (val, i, arr) => val === 1 );
-    },
   };
-  serial_demo_timeline.push(noflash_serial);
+  timeline.push(noflash_serial);
 
+  // give more information on the trial
   let instructions_serial2 = {
     type: 'instructions',
     pages: ['<p>Well done. </p>' +
-      '<p>While you are collecting the points, the upper and lower part of the Display might turn white, producing a flash. </p>' +
-      '<p>You can still ignore that flash.</p>' +
+      '<p>While you are collecting the points, the upper and lower part of the display might turn white, producing a flash. </p>' +
+      '<p>Try to ignore that flash.</p>' +
       '<p>&nbsp;</p>'+
       '<p>Try it again.</p>'],
     show_clickable_nav: true,
@@ -101,32 +127,36 @@
       test_part: 'serial_instructions2',
     },
   };
+  timeline.push(instructions_serial2);
 
-  serial_demo_timeline.push(instructions_serial2);
-
+  // show two trial with a flash, 5 seconds to answer, feedback will be provided
   let flash_serial = {
-    type: 'html-button-response-serial',
-    stimulus: '',
-    choices: ['','','','','',''],
-    button_html: [buttonPoint1,buttonPoint2,buttonPoint3,buttonPoint4,buttonPoint5,buttonPoint6],
-    post_trial_gap: 500,
+    type: 'manual-inhibition-serial',
+    buttonsVisible: visibleButtons,
+    buttonsInvisible: invisibleButtons,
+    flashUp: flashUpVisible,
+    flashDown: flashDownVisible,
+    flashDuration: 50,
+    flashTime: 400,
+    trialDuration: 5000,
+    waitAfter: 500,
     data:{
-      test_part: 'serial_test_flash',
+      test_part: 'serial_test_noflash',
     },
     on_finish:  function(data){
-      let newA = [];
-      for (let i = 1; i < data.choiceOrder.length; i++)  newA.push(data.choiceOrder[i] - data.choiceOrder[i - 1]);
-      let absA = [];
-      for (let i = 1; i<newA.length; i++) absA.push(Math.abs(newA[i]));
-
-      responseGiven = absA.every( (val, i, arr) => val === 1 );
+      orderResponse = data.orderResponse;
+      lateResponse = data.lateResponse;
     },
   };
 
+  // define the feedback structure
   let feedback = {
     type: 'html-button-response',
     stimulus: function () {
-        if (responseGiven) {
+      if (lateResponse){
+        return "<p>Too slow</p>"
+      }
+        else if (orderResponse) {
           return "<p>Well Done.</p>"
         } else {
           return "<p>Please follow the order.</p>"
@@ -136,16 +166,18 @@
     choices: ['Next Trial'],
     data:{
       test_part: 'serial_test_feedback',
-      response: responseGiven,
+      response: !lateResponse&&orderResponse,
     },
   };
 
+  // define the test procedure
   let test_procedure = {
     timeline: [flash_serial, feedback],
     repetitions: 2,
   };
-  serial_demo_timeline.push(test_procedure);
+  timeline.push(test_procedure);
 
+  // add more instructions to the experiment
   let instructions_serial3 = {
     type: 'instructions',
     pages: ['<p>Great. Try to be as fast as possible in this part of the experiment, while collecting all dots in order. ' +
@@ -159,15 +191,10 @@
       test_part: 'serial_instructions',
     }
   };
-  serial_demo_timeline.push(instructions_serial3);
+  timeline.push(instructions_serial3);
 
 
-   if (typeof screen.orientation === 'undefined'){
-        orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-    } else {
-        orientation = [screen.orientation.angle, 'angle']
-    }
-
+  // load jatos and run the instructions
   jatos.onLoad(function () {
 
       jsPsych.data.addProperties({
@@ -178,13 +205,13 @@
         platform: navigator.platform,
         scrPixDepth: screen.pixelDepth,
         scrColDepth : screen.colorDepth,
-        scrOrientation: orientation,
+        scrOrientation: scrOrientation,
         scrResolution: window.devicePixelRatio,
         component: 'Intro_Serial',
       });
 
       jsPsych.init({
-          timeline: serial_demo_timeline,
+          timeline: timeline,
           fullscreen: true,
           on_finish: function() {
               var resultJson = jsPsych.data.get().json();

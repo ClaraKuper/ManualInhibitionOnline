@@ -1,11 +1,3 @@
-img/
-jspsych-6.0.4/css
-jspsych-6.0.4/examples
-jspsych-6.0.4/license.txt
-jspsych-6.0.4/jspsych.js
-jspsych-6.0.4/plugins/*
+jspsych-6.0.4/plugins/templates
 data/
-!jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js
-2021_JATOS_ManualInhibition_Jump/
-2021_JATOS_ManualInhibition_Serial/
-nojatos/
+.ipynb_checkpoints/

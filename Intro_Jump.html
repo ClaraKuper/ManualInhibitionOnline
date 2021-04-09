@@ -8,7 +8,7 @@
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-touchdown.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-html-button-response-touchdown.js"></script>
     <script src="jatos.js"></script>
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
     <style>
@@ -25,137 +25,75 @@
             border-radius: 50%;
             margin-top: -25px;
             margin-left: -25px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
         }
     </style>
-    <meta name="viewport" content="width=device-width">
+
+    <!-- This line prevents from scrolling and marking -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 </head>
 
 <body bgcolor='gray'>
     <script>
 
+        // salute the hacker
+        console.log("There will be a cake in the end. There's always cake in the end.");
+
+        // this part of the experiment still has an old and ugly structure, where I try to describe every single event in
+        // the experiment with a pre-existing jsPsych plugin.
+        // in all other components, I used custom written plugins for the trials that have many advantages over the structure here.
+        // even though this structure is not intuitively readable, I will keep this script as it is for a while:
+        // a) for educational purposes
+        // b) because it works well
+        // c) because this is a introductory tutorial in which I don't really care about experimental timing and responses of the participant.
+
         /* create timeline */
         let jump_demo_timeline = [];
         let orientation;
 
-        /* welcome message to jump tutorial */
-        let jumptut_intro = {
-            type: "instructions",
-            pages: ["<p>This is the the first part of the experiment. We will start with a tutorial for you. </p>"],
-            show_clickable_nav: true,
-            button_label_next: 'Ok. Continue >',
-            post_trial_gap: 200,
-            data: {
-                test_part: 'general_intro',
-            }
-        };
-        jump_demo_timeline.push(jumptut_intro);
+        // get screen orientation information
+        if (typeof screen.orientation === 'undefined'){
+           // if screen.orientation doesn't work, check if the device is broader than high.
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
 
         /* define stimulus looks */
-        let fixationPoint = "<dot style = 'background-color: #3f3f3f;'></dot>";
         let centralPoint = "<dot></dot>";
         let invisibleCentralPoint = "<dot style = 'background-color: rgba(153,31,35,0);'></dot>";
         let rightTar = "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px'></dot>";
-        let rightTarResp = "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px;" +
-                "background-color: rgba(0,0,0,0);'></dot>";
-        let rightTarInvisible = "<dot style= 'right:calc(50% - 150px); width:300px; height:300px; " +
-            "margin-top: -150px; margin-right: -150px; margin-left: 0;  background-color:rgba(56,153,53,0);'></dot>";
+        let rightTarResp = "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px; background-color: rgba(0,0,0,0);'></dot>";
+        let rightTarInvisible = "<dot style= 'right:calc(50% - 150px); width:300px; height:300px; margin-top: -150px; margin-right: -150px; margin-left: 0;  background-color:rgba(56,153,53,0);'></dot>";
         let leftTar = "<dot style = 'left:calc(50% - 150px);'></dot>";
-        let leftTarResp = "<dot style = 'left:calc(50% - 150px);" +
-                "background-color: rgba(0,0,0,0);'></dot>";
-        let leftTarInvisible = "<dot style='left:calc(50% - 150px); width:300px; height:300px; " +
-            "margin-top: -150px; margin-left: -150px; background-color:rgba(153,31,35,0);'></dot>";
+        let leftTarResp = "<dot style = 'left:calc(50% - 150px); background-color: rgba(0,0,0,0);'></dot>";
+        let leftTarInvisible = "<dot style='left:calc(50% - 150px); width:300px; height:300px; margin-top: -150px; margin-left: -150px; background-color:rgba(153,31,35,0);'></dot>";
         let rightTarShiftIn =  "<dot style = 'right:calc(50% - 100px); margin-left:0; margin-right: -25px'></dot>";
         let rightTarShiftOut =  "<dot style = 'right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
         let leftTarShiftIn = "<dot style = 'left:calc(50% - 100px); '></dot>";
         let leftTarShiftOut = "<dot style = 'left:calc(50% - 200px);'></dot>";
 
         let flashVisible = "<div id='rectangle' style='position:absolute; left:0; top:0;" +
-                "width:100%; height:33%; background-color:#ffffff;'></div>" +
+                "width:100%; height:33%; background-color:#ffffff;-webkit-touch-callout: none; " +
+                "-webkit-user-select: none;'></div>" +
                 "<div id='rectangle' style='position:absolute; left:0; bottom:0;" +
-                "width:100%; height:33%; background-color:#ffffff;'></div>";
+                "width:100%; height:33%; background-color:#ffffff;-webkit-touch-callout: none; " +
+                "-webkit-user-select: none;'></div>";
 
         let flashInvisible = "<div id='rectangle' style=' position:absolute; left:0; top:0;" +
-                "width:100%; height:33%; background-color:#808080;'></div>" +
+                "width:100%; height:33%; background-color:#808080;-webkit-touch-callout: none; " +
+                "-webkit-user-select: none;'></div>" +
                 "<div id='rectangle' style=' position:absolute; left:0; bottom:0;" +
-                "width:100%; height:33%; background-color:#808080;'></div>";
+                "width:100%; height:33%; background-color:#808080;-webkit-touch-callout: none;" +
+                "-webkit-user-select: none;'></div>";
 
-        let whiteCircleLeft = "<dot style = 'left:calc(50% - 160px); height: 25px;" +
-                "width: 25px;" +
-                "background-color: #ffffff;' ></dot>";
-        let whiteCircleRight = "<dot style = 'right:calc(50% - 145px); top:52%; margin-left:0; margin-right:-25px; " +
-                "height: 25px;" +
-                "width: 25px;" +
-                "background-color: #ffffff;' ></dot>";
-        let whiteCircle = "<dot style = 'top:52%; height: 25px;" +
-                "width: 25px;" +
-                "background-color: #ffffff;'></dot>";
+        let whiteCircleLeft = "<dot style = 'left:calc(50% - 160px); height: 25px; width: 25px; background-color: #ffffff;' ></dot>";
+        let whiteCircleRight = "<dot style = 'right:calc(50% - 145px); top:52%; margin-left:0; margin-right:-25px; height: 25px; width: 25px; background-color: #ffffff;' ></dot>";
+        let whiteCircle = "<dot style = 'top:52%; height: 25px; width: 25px; background-color: #ffffff;'></dot>";
 
-        let tutorial_fixation = {
-            type: 'html-button-response-touchdown',
-            stimulus: [''],
-            button_html: fixationPoint,
-            prompt: "<p>This is the fixation point. Touch it with your index finger.</p>"+
-                    "<p>&nbsp;</p>" +
-                    "<p>&nbsp;</p>",
-            choices: [''],
-            data: {
-                test_part: 'tut_preFixation',
-            },
-        };
-        jump_demo_timeline.push(tutorial_fixation);
-
-        let tutorial_waitAfterFix = {
-            type: 'html-button-response-touchdown',
-            stimulus: [''],
-            button_html: centralPoint,
-            prompt: "<p> After you touched the fixation point, it turns black. Keep your index here! </p>" +
-                    "<p>&nbsp;</p>" +
-                "<p>&nbsp;</p>",
-            choices: [''],
-            data: {
-                test_part: 'tut_fixation',
-            },
-            trial_duration: 1500,
-        };
-        jump_demo_timeline.push(tutorial_waitAfterFix);
-
-        let tutorial_newPoint = {
-            type: 'html-button-response-touchdown',
-            stimulus: [''],
-            button_html: rightTar,
-            prompt: "<p> The fixation point will jump to the left of to the right. Try to catch it. </p>"+
-                    "<p>&nbsp;</p>" +
-                    "<p>&nbsp;</p>",
-            choices: [''],
-            data: {
-                test_part: 'tut_newPoint',
-            },
-        };
-        jump_demo_timeline.push(tutorial_newPoint);
-
-        let demo_intro = {
-            type: "instructions",
-            pages: ['<p>Great! While you reach out to touch the jumped point, a few things might happen. </p>' +
-                "<p> 1. You might see a bright flash on the upper and lower part of the screen.</p>" +
-                "<p> 2. The point might jump a second time, either forwards or backwards. </p>",
-                "<p>You can completely ignore the flash, it is irrelevant for your task. </p>",
-                "<p>When the point jumps, try to catch it at it's new location. </p>"+
-                "<p>The trials have a very rapid pace. That means that your response will be too slow when you wait at the start " +
-                "till the dot has jumped. So instead of waiting, try to adjust your response in flight. It's okay if your response " +
-                "is slightly off. Try to prioritize speed over accuracy. </p>",
-                "<p>We will play some trials to demonstrate the speed of the experiment. The white dot shows a simulated finger touch. " +
-                "You don't need to do anything yet. Just watch.</p>"],
-            show_clickable_nav: true,
-            button_label_next: 'Ok. Continue >',
-            post_trial_gap: 200,
-            data: {
-                test_part: 'demo_intro',
-            }
-        };
-        jump_demo_timeline.push(demo_intro);
-
-        // define demo trials
+        // define the trial structure of the demonstration trials
         let demo_stimuli = [
             // type 1 - jump right, with flash
             {
@@ -196,12 +134,112 @@
              },
         ];
 
+
+        // define all trial components
+
+        // INTRODUCTION
+        /* welcome message to jump tutorial */
+        // displays the message, waits for response
+        let jumptut_intro = {
+            type: "instructions",
+            pages: ["<p>This is the the first part of the experiment. We will start with a tutorial for you. </p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'general_intro',
+            }
+        };
+        jump_demo_timeline.push(jumptut_intro);
+
+        // displays the dot in the center with a message, waits for a touch
+        let tutorial_fixation = {
+            type: 'html-button-response-touchdown',
+            stimulus: [''],
+            button_html: centralPoint,
+            prompt: "<p>This is the fixation point. Touch it with your index finger.</p>"+
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>",
+            choices: [''],
+            data: {
+                test_part: 'tut_preFixation',
+            },
+        };
+        jump_demo_timeline.push(tutorial_fixation);
+
+        // keeps displaying the dot in the center for a fixed time. with a message.
+        // ends when the dot is pressed a second time or when time runs out.
+        let tutorial_waitAfterFix = {
+            type: 'html-button-response-touchdown',
+            stimulus: [''],
+            button_html: centralPoint,
+            show_flash: false,
+            prompt: "<p> After you touched the fixation point, it turns black. Keep your index here! </p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                "<p>&nbsp;</p>",
+            choices: [''],
+            data: {
+                test_part: 'tut_fixation',
+            },
+            trial_duration: 1500,
+        };
+        jump_demo_timeline.push(tutorial_waitAfterFix);
+
+        // displays the point at a new location
+        // ends when the new point is touched
+        let tutorial_newPoint = {
+            type: 'html-button-response-touchdown',
+            stimulus: [''],
+            button_html: rightTar,
+            show_flash: false,
+            prompt: "<p> The fixation point will jump to the left of to the right. Try to catch it. </p>"+
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>" +
+                    "<p>&nbsp;</p>",
+            choices: [''],
+            data: {
+                test_part: 'tut_newPoint',
+            },
+        };
+        jump_demo_timeline.push(tutorial_newPoint);
+
+        // gives additional information about the trial.
+        let demo_intro = {
+            type: "instructions",
+            pages: ['<p>Great! While you reach out to touch the jumped point, a few things might happen. </p>' +
+                "<p> 1. You might see a bright flash on the upper and lower part of the screen.</p>" +
+                "<p> 2. The point might jump a second time, either forwards or backwards. </p>",
+                "<p>Try to ignore the flash. </p>",
+                "<p>When the point jumps, try to catch it at it's new location. </p>"+
+                "<p>The trials have a very rapid pace. That means that your response will be too slow when you wait at the fixation point " +
+                "to check if the dot jumps a second time. So instead of waiting, try to adjust your response in flight. It's okay if your response " +
+                "is slightly off. Try to prioritize speed over accuracy. </p>",
+                "<p>We will play some trials to demonstrate the speed of the experiment. The white dot shows a simulated finger touch. " +
+                "You don't need to do anything yet. Just watch.</p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'demo_intro',
+            }
+        };
+        jump_demo_timeline.push(demo_intro);
+
+
+        // DEMONSTRATION
         // define events for demo
 
+        // fixation in the center
         let demo_fixation = {
             type: 'html-button-response-touchdown',
             stimulus: [''],
-            button_html: fixationPoint,
+            button_html: centralPoint,
+            show_flash: false,
             prompt: [''],
             choices: [''],
             data: {
@@ -211,10 +249,12 @@
             trial_duration: 500,
         };
 
+        // waiting, not accepting additional responses
         let demo_waitAfterFix = {
             type: 'html-button-response-touchdown',
             stimulus: centralPoint,
             button_html: whiteCircle,
+            show_flash: false,
             prompt: '',
             choices: [''],
             data: {
@@ -224,10 +264,12 @@
             trial_duration: 200,
         };
 
+        // showing the new point
         let demo_newPoint1 = {
             type: 'html-button-response-touchdown',
             stimulus: jsPsych.timelineVariable('stimulus'),
             button_html: whiteCircle,
+            show_flash: false,
             prompt: '',
             choices: [''],
             data: {
@@ -237,11 +279,13 @@
             trial_duration: 200,
         };
 
+        // showing the flash
         let demo_showFlash = {
             type: 'html-button-response-touchdown',
             stimulus: jsPsych.timelineVariable('jumpedStim'),
             prompt: jsPsych.timelineVariable('flash'),
             button_html: whiteCircle,
+            show_flash: false,
             choices: [''],
             data: {
                 test_part: 'demo_flash',
@@ -249,11 +293,13 @@
             trial_duration: 70,
         };
 
+        // showing the new point
         let demo_waitResponse1 = {
             type: 'html-button-response-touchdown',
             stimulus: jsPsych.timelineVariable('jumpedStim'),
             prompt: '',
             button_html: whiteCircle,
+            show_flash: false,
             choices: [''],
             trial_duration: 100,
             post_trial_gap: 0,
@@ -262,11 +308,13 @@
             },
         };
 
+        // showing the new point without the finger (simulating a lift)
         let demo_waitResponse2 = {
             type: 'html-button-response-touchdown',
             stimulus: jsPsych.timelineVariable('jumpedStim'),
             prompt: '',
             button_html: [''],
+            show_flash: false,
             choices: [''],
             trial_duration: 100,
             post_trial_gap: 0,
@@ -275,12 +323,14 @@
             },
         };
 
+        // showing the new point with the finger (simulating a touch)
         let demo_response = {
             type: 'html-button-response-touchdown',
             stimulus: jsPsych.timelineVariable('jumpedStim'),
             prompt: [''],
             button_html: jsPsych.timelineVariable('responseButton'),
             choices: [''],
+            show_flash: false,
             response_ends_trial: false,
             trial_duration: 300,
             post_trial_gap: 0,
@@ -289,11 +339,13 @@
             },
         };
 
+        // showing feedback on this trial
         let demo_feedback = {
             type: 'html-button-response-touchdown',
             prompt: jsPsych.timelineVariable('responseButton'),
             button_html: [''],
             stimulus: 'Trial Over.',
+            show_flash: false,
             trial_duration: 1000,
             post_trial_gap: 500,
             choices: [''],
@@ -303,7 +355,7 @@
         };
 
         // define a demo procedure
-
+        // and run it with all inputs from the demo stimuli
         let demo_procedure = {
             timeline: [demo_fixation, demo_waitAfterFix, demo_newPoint1, demo_showFlash,
                 demo_waitResponse1, demo_waitResponse2, demo_response, demo_feedback],
@@ -311,14 +363,21 @@
             repetitions: 1,
             randomize_order: false,
         };
-
         jump_demo_timeline.push(demo_procedure);
 
-       if (typeof screen.orientation === 'undefined'){
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-        } else {
-            orientation = [screen.orientation.angle, 'angle']
-        }
+        // display an end of the instruction and move on to the actual training.
+        let end_instructions = {
+            type: 'instructions',
+            pages: ["<p>That's the end of the demonstration.</p>" +
+            "<p>We will now do some training blocks.</p>"],
+            show_clickable_nav: true,
+            button_label_next: 'Ok. Continue >',
+            post_trial_gap: 200,
+            data: {
+                test_part: 'intro',
+            }
+        };
+        jump_demo_timeline.push(end_instructions);
 
         /* start the experiment */
         jatos.onLoad(function () {

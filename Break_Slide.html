@@ -15,18 +15,31 @@
             font-size: 1em;
         }
     </style>
-    <meta name="viewport" content="width=device-width">
+    <!-- below, we prevent scaling and marking -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 </head>
 
 <body bgcolor='gray'>
     <script>
 
-        let break_timeline = [];
-        let orientation;
+        // salute the hacker
+        console.log('Is there much left? - Yes!');
 
-        /* define welcome message trial */
-        let welcome = {
+        // initialize some values
+        let break_timeline = []; // the timeline for the break
+        let orientation; // the orientation of the screen (user surveillance)
+
+
+        // adjust the screen orientation
+        if (typeof screen.orientation === 'undefined'){
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
+
+        /* define break message trial */
+        let breakmessage = {
             type: "instructions",
             pages:["<p>Time for a break.</p>" +
                     "<p>Click continue when you're ready to go on. </p>"],
@@ -37,38 +50,34 @@
                 test_part: 'break',
             }
         };
-        break_timeline.push(welcome);
-
-       if (typeof screen.orientation === 'undefined'){
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-        } else {
-            orientation = [screen.orientation.angle, 'angle']
-        }
+        break_timeline.push(breakmessage);
 
         /* start the experiment */
-        jatos.onLoad(function () {
+        // call jatos function, we can use jatos code after this line
+        jatos.onLoad(function (){
+
+            // add general data properties to all fields of this trial
+            jsPsych.data.addProperties({
+                subject: jatos.workerId, // id of the subject
+                screenWidth: screen.width, // screen width in px
+                screenHeight: screen.height, // screen height in px
+                userInfo: navigator.userAgent, // some information about the user device
+                platform: navigator.platform, // some information about the web browser
+                scrPixDepth: screen.pixelDepth, // some information about the pixel structure
+                scrColDepth : screen.colorDepth, // some information about the color channels
+                scrOrientation: orientation, // save the orientation information
+                scrResolution: window.devicePixelRatio, // save the pixel ratio
+                component: 'Break_General', // the component of the experiment
+            });
+
             jsPsych.init({
-                on_start: function () {
-                    jsPsych.data.addProperties({
-                        subject: jatos.workerId,
-                        screenWidth: screen.width,
-                        screenHeight: screen.height,
-                        userInfo: navigator.userAgent,
-                        platform: navigator.platform,
-                        scrPixDepth: screen.pixelDepth,
-                        scrColDepth : screen.colorDepth,
-                        scrOrientation: orientation,
-                        scrResolution: window.devicePixelRatio,
-                        component: 'Break_General',
-                    });
-                },
                 timeline: break_timeline,
                 fullscreen: true,
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);
                 },
-            });
+            })
         });
     </script>
 </body>

@@ -24,23 +24,32 @@
             border-radius: 50%;
             margin-top: -25px;
             margin-left: -25px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
         }
     </style>
-    <meta name="viewport" content="width=device-width">
+    <!-- below, we prevent scaling and marking -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
 </head>
 
 <body bgcolor='gray'>
     <script>
 
+        // salute the hacker
         console.log('Welcome, my nerdy hacker friend. =)');
 
-        // generate a unique subject code
-        subject_ID =  jsPsych.randomization.randomID(15);
-        //jatos.setStudySessionData({subject: subject_ID});
-
+        // define some values to collect
         let welcome_timeline = [];
         let orientation;
+
+        // get screen orientation information
+        if (typeof screen.orientation === 'undefined'){
+           // if screen.orientation doesn't work, check if the device is broader than high.
+            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        } else {
+            orientation = [screen.orientation.angle, 'angle']
+        }
 
         /* define welcome message trial */
         let welcome = {
@@ -63,10 +72,10 @@
             pages: ["<p>Please bring your touchscreen device in landscape mode now. If you don't have " +
                 "a touchscreen device, contact the person responsible for the experiment.</p>",
                 "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 20 minutes and you shouldn't " +
-                "close the tab during the experiment. You can take breaks whenever you see the central fixation point appear on the screen " +
-                "(dark gray point in the center). You are also free to end the experiment whenever you want, your data will only be saved "+
+                "close the tab during the experiment. You can take breaks at the beginning of each trial (after feedback) and when you " +
+                "see the break message. You are free to end the experiment whenever you want, your data will only be saved "+
                 "if you complete the full experiment.</p>",
-                "<p>This experiment has two parts with slightly different tasks. Before each part, we will introduce you to the upcoming " +
+                "<p>This experiment has two parts with different tasks. Before each part, we will introduce you to the upcoming " +
                 "task. The parts are run after each other, so you only have to concentrate on doing one at a time.</p>"],
             show_clickable_nav: true,
             button_label_next: 'Ok. Continue >',
@@ -77,27 +86,21 @@
         };
         welcome_timeline.push(general_intro);
 
-       if (typeof screen.orientation === 'undefined'){
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-        } else {
-            orientation = [screen.orientation.angle, 'angle']
-        }
         /* start the experiment */
         jatos.onLoad(function () {
 
             jsPsych.data.addProperties({
-                subject: jatos.workerId,
-                screenWidth: screen.width,
-                screenHeight: screen.height,
-                userInfo: navigator.userAgent,
-                platform: navigator.platform,
-                scrPixDepth: screen.pixelDepth,
-                scrColDepth : screen.colorDepth,
-                scrOrientation: orientation,
-                scrResolution: window.devicePixelRatio,
-                component: 'Intro_General',
+                subject: jatos.workerId, // id of the subject
+                screenWidth: screen.width, // screen width in px
+                screenHeight: screen.height, // screen height in px
+                userInfo: navigator.userAgent, // some information about the user device
+                platform: navigator.platform, // some information about the web browser
+                scrPixDepth: screen.pixelDepth, // some information about the pixel structure
+                scrColDepth : screen.colorDepth, // some information about the color channels
+                scrOrientation: orientation, // save the orientation information
+                scrResolution: window.devicePixelRatio, // save the pixel ratio
+                component: 'Intro_General', // the component of the experiment
             });
-
 
             jsPsych.init({
                 timeline: welcome_timeline,

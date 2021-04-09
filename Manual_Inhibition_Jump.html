@@ -3,13 +3,16 @@
 <html lang="en">
 
 <head>
-    <title>Training Jumping Dots</title>
+    <title>Experiment Block Jumping Dots</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+    <!-- custom scripts -->
     <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
     <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump.js"></script>
+    <!-- jatos import -->
     <script src="jatos.js"></script>
+    <!-- css import -->
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
     <style>
         p {
@@ -17,35 +20,31 @@
         }
         dot {
             position:absolute;
-            display: inline;
-            top: 50%;
-            height: 50px;
-            width: 50px;
-            background-color: #000000;
-            border-radius: 50%;
-            margin-top: -25px;
-            margin-left: -25px;
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
+            display:inline;
+            top: 50%; /* position in center of screen */
+            height: 50px; /* size */
+            width: 50px; /* size */
+            background-color: #000000; /* color to black */
+            border-radius: 50%; /* makes the square a dot */
+            margin-top: -25px; /* makes sure the dot is centered */
+            margin-left: -25px; /* makes sure the dot is centered */
+            -webkit-touch-callout: none; /* prevent marking on iOS Safari */
+            -webkit-user-select: none; /* prevent marking on Safari */
         }
-
     </style>
     <!-- meta prevents zooming in -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+
 </head>
 
 <body bgcolor='gray'>
-
     <script>
 
         // salute the hacker
-        console.log("You're still around. That's awesome.");
-
-        // this script is a shortened version of the full experiment.
-        // The difference is that we do less trials
+        console.log("Welcome to the show!");
 
         // define parameter values for the experiment:
-        let nTrials = 1; // the number of trials
+        let nTrials = 10; // the number of trials
         let cFlash = [0,1]; // the flash conditions
         let cJump = [0,1]; // the jump conditions
         let cInwards = [0,1]; // inward/not condition
@@ -160,6 +159,18 @@
             }
         }
 
+        // first trial: ask user for permission to enter fullscreen
+        let confirm_fullscreen = {
+            type: "fullscreen",
+            message:["<p>Click below to change to fullscreen mode.</p>"],
+            fullscreen_mode: true,
+            button_label: 'Fullscreen',
+            data: {
+                test_part: 'fullscreen_request',
+            }
+        };
+        timeline.push(confirm_fullscreen);
+
         // core trial structure
         let trial = {
             type: 'manual-inhibition-jump', // calls the custom plugin
@@ -191,7 +202,6 @@
                 },
 
             // save the data from the current trial
-            // the "true" extension evaluates the timeline Variable immediately
             data: {
                 test_part: 'trial',
                 position: jsPsych.timelineVariable('position'),
@@ -245,7 +255,7 @@
                 test_part: 'feedback',
             },
         };
-
+        
         // define a training procedure
         let test_procedure = {
             timeline: [trial, feedback], // one trial and one feedback will be repeated after each other
@@ -267,44 +277,31 @@
         };
         timeline.push(test_procedure);
 
-
-        // let them know that the training is over
-        let end_instructions = {
-            type: 'instructions',
-            pages: ["<p>That's the end of the training block.</p>" +
-            "<p>Let's start the first part of experiment.</p>"],
-            show_clickable_nav: true,
-            button_label_next: 'Ok. Continue >',
-            post_trial_gap: 200,
-            data: {
-                test_part: 'intro',
-            }
-        };
-        timeline.push(end_instructions);
-
-        // start the experiment
-        jatos.onLoad(function() {
+        /* start the experiment */
+        // load jatos - I can use jatos functions after this line
+        jatos.onLoad(function () {
 
             jsPsych.data.addProperties({
-            subject: jatos.workerId,
-            screenWidth: screen.width,
-            screenHeight: screen.height,
-            userInfo: navigator.userAgent,
-            platform: navigator.platform,
-            scrPixDepth: screen.pixelDepth,
-            scrColDepth : screen.colorDepth,
-            scrOrientation: orientation,
-            scrResolution: window.devicePixelRatio,
-            component: 'Training_Jump',
+                subject: jatos.workerId, // id of the subject
+                screenWidth: screen.width, // screen Width in px
+                screenHeight: screen.height, // screen Height in px
+                userInfo: navigator.userAgent, // some information about the user device
+                platform: navigator.platform, // some information about the web browser
+                scrPixDepth: screen.pixelDepth, // some information about the pixel structure
+                scrColDepth : screen.colorDepth, // some information about the color channels
+                scrOrientation: orientation, // save the orientation information
+                scrResolution: window.devicePixelRatio, // save the pixel ratio
+                component: 'Trials_Jump', // name the component
             });
 
             jsPsych.init({
-                timeline: timeline,
-                fullscreen: true,
+                timeline: timeline, // use the timeline to run the experiment
+                fullscreen: true, // run in fullscreen if possible
                 on_finish: function() {
+                    // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);
-                }
+                },
             });
         });
     </script>

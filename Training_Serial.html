@@ -6,8 +6,8 @@
   <title>Training Serial Dots</title>
   <script src="jspsych-6.0.4/jspsych.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
-  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response-serial.js"></script>
-  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+  <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
+  <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
   <script src="jatos.js"></script>
   <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
   <style>
@@ -24,120 +24,236 @@
             border-radius: 50%;
             margin-top: -25px;
             margin-left: -25px;
+            -webkit-touch-callout: none; /* iOS Safari */
+            -webkit-user-select: none; /* Safari */
         }
   </style>
-  <meta name="viewport" content="width=device-width">
+    <!-- meta prevents zooming in -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
 </head>
 
   <body bgcolor='gray'>
-    <script>
-        let serial_training_timeline = [];
-        let responseGiven;
-        let orientation;
+  <script>
+
+    // salute the hacker
+    console.log("There's only two type of people in this world: Those who can extrapolate from incomplete data.");
+
+    // this training trial is basically like the experiment, but shorter
+
+    // define parameter values for the experiment
+    let nTrials = 1; // number of trials per condition
+    let trialDuration = 1500; // duration of the trial
+    // for this design, we will create n even time windows between 0 up to the duration of the experiment.
+    // we will sample nTrials random trials in each of these time windows.
+    // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
+    // and avoids clusters appearing by chance.
+    let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
+    let twSize = 100; // the size of the time windows
+    let flashDuration = 30; // how long the flash will be on the screen in ms
+    let waitAfter = 500; // how long we will wait at the end of the trial in ms
+
+    // initialize empty arrays
+    let timeline = []; // the timeline for the final experiment
+    let timelineVariables = []; // the array that will later hold our design structure
+    let repeat_IDs = []; // the array that will hold the IDs to be repeated later
+    let repeat_trials = []; // a copy of the ID array that will be filled after the first round and used for the ID check
+
+    // boolean checks
+    let lateResponse; // if the last dot was touched after trialDuration
+    let orderResponse; // if the dots were touched in order
+    let repeat; // if that trial should be repeated or not
+
+    // parameters for user control
+    let orientation; // get the screen orientation (landscape or portrait)
+    // check the screen
+    if (typeof screen.orientation === 'undefined'){
+        // alternative when orientation is not available
+        // check if the device is wider than high
+        orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+    } else {
+        orientation = [screen.orientation.angle, 'angle']
+    }
 
 
-        let buttonPoint1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>"+
-                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
-        let buttonPoint2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>"+
-                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
-        let buttonPoint3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>"+
-                "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+    // define stimuli on screen
+    let buttonVisible1 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
+    let buttonVisible2 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
+    let buttonVisible3 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
+    let buttonVisible4 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
+    let buttonVisible5 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
+    let buttonVisible6 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+    let visibleButtons = [buttonVisible1, buttonVisible2, buttonVisible3, buttonVisible4, buttonVisible5, buttonVisible6];
 
-         let buttonPoint4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-                "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
-        let buttonPoint5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-            "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
-        let buttonPoint6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>"+
-                "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
+    let buttonInvisible1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>";
+    let buttonInvisible2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>";
+    let buttonInvisible3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>";
+    let buttonInvisible4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+    let buttonInvisible5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+    let buttonInvisible6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
+    let invisibleButtons = [buttonInvisible1, buttonInvisible2, buttonInvisible3, buttonInvisible4, buttonInvisible5, buttonInvisible6];
 
+    let flashUpVisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
+    let flashDownVisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
 
-        let training_trial = {
-          type: 'html-button-response-serial',
-          stimulus: '',
-          choices: ['','','','','',''],
-          button_html: [buttonPoint1,buttonPoint2,buttonPoint3,buttonPoint4,buttonPoint5,buttonPoint6],
-          post_trial_gap: 500,
-          data:{
-            test_part: 'Clicks',
-          },
-          on_finish:  function(data){
-            let newA = [];
-            for (let i = 1; i < data.choiceOrder.length; i++)  newA.push(data.choiceOrder[i] - data.choiceOrder[i - 1]);
-            let absA = [];
-            for (let i = 1; i<newA.length; i++) absA.push(Math.abs(newA[i]));
+    // set up values for loop
+    let T; // the trials
+    let nT; // number of trials per condition
+    let tW; // the time window
+    let fT; // flash time
+    let trialID = 0; // a trial ID
 
-            responseGiven = absA.every( (val, i, arr) => val === 1 );
-          },
+    // loop through all trials
+    for (nT = 0; nT < nTrials; nT++){
+      // loop through all time windows
+      for (tW = 0; tW < maxFlashTime; tW = tW+twSize){
+        // save the values for the current trial
+        T = {
+          // the time of the flash will be the time window start + a random value between 0
+          // and the size of the time window
+          flashTime: tW + Math.random()*twSize,
+          trialID: trialID,
         };
+        // save the trial in our design structure
+        timelineVariables.push(T);
+        // increment the trial ID
+        trialID++;
+      }
+    }
 
-        let feedback = {
-            type: 'html-button-response',
-            stimulus: function () {
-                if (responseGiven) {
-                    return "<p>Well Done.</p>"
-                } else {
-                    return "<p>Please follow the order.</p>"
-                }
-            },
-            trial_duration: 1000,
-            post_trial_gap: 500,
-            choices: ['Next Trial'],
-            data:{
-                test_part: 'feedback',
-                response: responseGiven,
-            },
-        };
-
-        let training_procedure = {
-          timeline: [training_trial, feedback],
-          repetitions: 1,
-        };
-        serial_training_timeline.push(training_procedure);
-
-        // let them know that the training is over
-        let end_instructions = {
-            type: 'instructions',
-            pages: ["<p>That's the end of the training block.</p>" +
-            "<p>Let's start the experiment.</p>"],
-            show_clickable_nav: true,
-            button_label_next: 'Ok. Continue >',
-            post_trial_gap: 200,
-            data: {
-                test_part: 'intro',
-            }
-        };
-        serial_training_timeline.push(end_instructions);
-
-       if (typeof screen.orientation === 'undefined'){
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+    // define the main trial for the experiment
+    let trial = {
+      type: 'manual-inhibition-serial', // calls the custom plugin
+      buttonsVisible: visibleButtons, // the visible buttons are an array of dots
+      buttonsInvisible: invisibleButtons, // the invisible buttons are an array of dots
+      flashUp: flashUpVisible, // the upper part of the white flash
+      flashDown:flashDownVisible, // the lower part of the white flash
+      flashTime: jsPsych.timelineVariable('flashTime'), // the time when the flash appears between 0 ms and the trial duration
+      flashDuration: flashDuration, // the time the flash is visible in ms
+      trialDuration: trialDuration, // the trial duration after the first point was touched
+      waitAfter: waitAfter, // how long to wait after the trial ended
+      runTrial: function(){
+        // in this function, we define if we want to run this trial or not
+        // get the id of the current trial
+        let id_here = jsPsych.timelineVariable('trialID', true);
+        // if there are any values in the repeat trial array
+        if (repeat_trials.length > 0) {
+          // run the trial if the value is inside the array
+          repeat = repeat_trials.includes(id_here);
         } else {
-            orientation = [screen.orientation.angle, 'angle']
+          // this is the first round, we run every trial
+          repeat = true;
         }
+        return repeat;
+        },
+      data:{
+        // assign relevant data
+        // with true, these functions evaluate immediately
+        test_part: 'Serial-Inhibition', // the part of the experiment
+        flashTime: jsPsych.timelineVariable('flashTime'),  // the time when a flash was shown
+        trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
+      },
+      on_finish:  function(data){
+        // evaluate if the there were any mistakes and if the trial need repetition
+        orderResponse = data.orderResponse; // were the answers given in order
+        lateResponse = data.lateResponse; // was the response fast enough
+        // if out of order or late response, create new T object and push it to repeat_IDs
+        if (data.trialShown) {
+          // evaluate only for trials that were shown
+          if (lateResponse || !orderResponse) {
+            // if there was any error
+            // get the trial ID
+            T = jsPsych.timelineVariable("trialID", true);
+            // and save it
+            repeat_IDs.push(T);
+          }
+        }
+      },
+    };
 
-        jatos.onLoad(function () {
+    // display feedback
+    let feedback = {
+      type: 'html-button-response-conditional',
+      trialID: jsPsych.timelineVariable('trialID'),
+      stimulus: function () {
+        // evaluate which feedback should be shown
+        if (lateResponse){
+          return "<p>Too slow</p>"
+        }else if (orderResponse) {
+          return "<p>Well Done.</p>"
+        } else {
+          return "<p>Please follow the order.</p>"
+        }
+      },
+      post_trial_gap: 0, // needs to be zero to avoid waiting times when the trial is skipped
+      choices: [''], // don't display choices
+      button_html: '', // don't display buttons
+      trial_duration: 1500, // display the feedback for 1500 ms
+      runTrial: function(){return repeat}, // evaluate if the trial should run or not
+      data:{
+          test_part: 'feedback',
+      },
+    };
 
-          jsPsych.data.addProperties({
-              subject: jatos.workerId,
-              screenWidth: screen.width,
-              screenHeight: screen.height,
-              userInfo: navigator.userAgent,
-              platform: navigator.platform,
-              scrPixDepth: screen.pixelDepth,
-              scrColDepth : screen.colorDepth,
-              scrOrientation: orientation,
-              scrResolution: window.devicePixelRatio,
-              component: 'Training_Serial',
-          });
+    // define a training procedure
+    let test_procedure = {
+      timeline: [trial, feedback], // one trial and one feedback will be repeated after each other
+      timeline_variables: timelineVariables, // our design structure provides the timeline variables
+      repetitions: 1, // our design structure is repeated once
+      randomize_order: true, // our design structure will be repeated in a random order
+      // this function evaluates if we want to repeat the loop
+      // if it evaluates to true, we repeat the full design matrix
+      loop_function: function(){
+          // save the IDs to be repeated in a new variable
+          repeat_trials = repeat_IDs;
+          // check if there are any IDs to repeat
+          let eval_loop = repeat_IDs.length > 0;
+          // reset the repetition array to empty
+          repeat_IDs = [];
+          // return true or false
+          return eval_loop
+      },
+    };
+    timeline.push(test_procedure);
 
-            jsPsych.init({
-                timeline: serial_training_timeline,
-                fullscreen: true,
-                on_finish: function() {
-                    let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
-                }
-            });
-        });
-    </script>
+    // let them know that the training is over
+    let end_instructions = {
+        type: 'instructions',
+        pages: ["<p>That's the end of the training block.</p>" +
+        "<p>Let's start the experiment.</p>"],
+        show_clickable_nav: true,
+        button_label_next: 'Ok. Continue >',
+        post_trial_gap: 200,
+        data: {
+            test_part: 'intro',
+        }
+    };
+    timeline.push(end_instructions);
+
+
+    jatos.onLoad(function () {
+      jsPsych.data.addProperties({
+        subject: jatos.workerId,
+        screenWidth: screen.width,
+        screenHeight: screen.height,
+        userInfo: navigator.userAgent,
+        platform: navigator.platform,
+        scrPixDepth: screen.pixelDepth,
+        scrColDepth : screen.colorDepth,
+        scrOrientation: orientation,
+        scrResolution: window.devicePixelRatio,
+        component: 'Training_Serial',
+      });
+
+      jsPsych.init({
+        timeline: timeline,
+        fullscreen: true,
+        on_finish: function() {
+          let resultJson = jsPsych.data.get().json();
+          jatos.submitResultData(resultJson, jatos.startNextComponent);
+        }
+      });
+    });
+
+  </script>
   </body>
 </html>

@@ -9,167 +9,47 @@
     <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
     <!-- custom scripts -->
     <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
-    <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump-Laura.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">
+    <script src="objects.js"></script>
+    <script type= "text/javascript" src="loops.js"></script>
+    <script src="common_vars.js"></script>
     <!-- jatos import -->
     <script src="jatos.js"></script>
     <!-- css import -->
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
-    <style>
-        p {
-            font-size: 1em;
-        }
-        dot {
-            position:absolute;
-            display:inline;
-            top: 50%; /* position in center of screen */
-            height: 50px; /* size */
-            width: 50px; /* size */
-            background-color: #000000; /* color to black */
-            border-radius: 50%; /* makes the square a dot */
-            margin-top: -25px; /* makes sure the dot is centered */
-            margin-left: -25px; /* makes sure the dot is centered */
-            -webkit-touch-callout: none; /* prevent marking on iOS Safari */
-            -webkit-user-select: none; /* prevent marking on Safari */
-        }
-    </style>
     <!-- meta prevents zooming in -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
 
 </head>
 
 <body bgcolor='gray'>
+    
     <script>
 
         // salute the hacker
-        console.log("Welcome to the show!");
+        console.log("Welcome to the show!"); 
 
         // define parameter values for the experiment:
-        let nTrials = 10; // the number of trials
-        let cFlash = [0,1]; // the flash conditions
-        let cJump = [0,1]; // the jump conditions
-        let cInwards = [0,1]; // inward/not condition
-        let cPosition = ['l','r']; // the position condition
+        let nTrials = 1; // the number of trials
+        let cFlash = [0]; // the flash conditions
+        let cJump = [0]; // the jump conditions
+        let cInwards = [0]; // inward/not condition
+        let cPosition = ['l']; // the position condition
         let fixTime = 1000; // how long the central point is maximally touched before the trial starts
         let flashTime = 250; // the longest time till the flash occurs after trial start
         let trialDur = 1000; // the duration of the experiment (without fixation time)
         let waitAfter = 500; // time to wait after each trial
         let flashDur = 30; // how long to display the flash in ms
 
-        /* create timeline */
-        let timeline = []; // timeline to run on jsPsych.init
-        let test_stimuli = []; // the design structure, stimulus values for each trial
-        let repeat_IDs = []; // a list of all IDs that have to be repeated
-        let repeat_trials = []; // gets assigned to repeat_IDs at the end of each run
+       
 
-        // boolean checks
-        let lateResponse; // was the response given in time
-        let earlyResponse; // was the response given too early
-        let repeat; // check if the current trial should be repeated or not
+        let stop = false;
 
-        // parameters for user control
-        let orientation; // get the screen orientation (landscape or portrait)
-        // check the screen
-        if (typeof screen.orientation === 'undefined'){
-            // alternative when orientation is not available
-            // check if the device is wider than high
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-        } else {
-            orientation = [screen.orientation.angle, 'angle']
-        }
 
-        // stimulus styles
-        // stimuli dont get an ID here - the ID will be added in the custom java script
-        let centralPoint = "<dot></dot>";
-        let invisibleCentralPoint = "<dot style = 'background-color: rgba(153,31,35,0);'></dot>";
-        let rightTar = "<dot style = 'right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
-        // invisible right tar
-        let rightTarInvisible = "<dot style='right:calc(50% - 200px); width:300px; height:300px; " +
-            "margin-top: -150px; margin-right: -150px; margin-left: 0;  background-color:rgba(56,153,53,0);'></dot>";
-        let leftTar = "<dot style = 'left:calc(50% - 200px);'></dot>";
-        // invisible left Tar
-        let leftTarInvisible = "<dot style='left:calc(50% - 200px); width:300px; height:300px; " +
-            "margin-top: -150px; margin-left: -150px; background-color:rgba(153,31,35,0);'></dot>";
-        let rightTarShiftIn =  "<dot style = 'right:calc(50% - 150px); margin-left:0; margin-right: -25px'></dot>";
-        let rightTarShiftOut =  "<dot style = 'right:calc(50% - 250px); margin-left:0; margin-right: -25px'></dot>";
-        let leftTarShiftIn = "<dot style = 'left:calc(50% - 150px); '></dot>";
-        let leftTarShiftOut = "<dot style = 'left:calc(50% - 250px);'></dot>";
-        let flashUpVisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-        let flashDownVisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-        let flashUpInvisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,0);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-        let flashDownInvisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,0);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
 
-        // set up variables for loop
-        let nT; // number of trials
-        let T; // trial
-        let cF; // condition flash index
-        let cJ; // condition jump index
-        let cI; // condition inwards index
-        let cP; // condition position index
-        let fixT; // time for fixation
-        let ID = 0; // trial ID initialization
+        let test_stimuli = Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur);
 
-        let flash_condition; // current flash condition
-        let jump_condition; // current jump condition
-        let inwards_condition; // current inwards condition
-        let position_condition; // current position condition
-
-        // loop through trials
-        for (nT = 0; nT < nTrials; nT++){
-            // loop through flash conditions
-            for (cF = 0; cF < cFlash.length; cF++){
-                flash_condition = cFlash[cF];
-                // loop through jump conditions
-                for (cJ = 0; cJ < cJump.length; cJ++){
-                    jump_condition = cJump[cJ];
-                    // loop through inwards conditions
-                    for (cI = 0; cI < cInwards.length; cI++){
-                        inwards_condition = cInwards[cI];
-                        // loop though position conditions
-                        for (cP = 0; cP < cPosition.length; cP++){
-                            position_condition = cPosition[cP];
-                            // assign all values to the current trial
-                            T = {
-                                sidePoint: function(){if (position_condition === 'r'){return rightTar} else{return leftTar}}(),
-                                jumpedPoint: function(){if (position_condition === 'r'){if(inwards_condition){return rightTarShiftIn
-                                } else {return rightTarShiftOut}
-                                } else {if(inwards_condition){return leftTarShiftIn
-                                } else {return leftTarShiftOut}
-                                }
-                                }(),
-                                sideButton: function(){if (position_condition === 'r'){return rightTarInvisible} else{return leftTarInvisible}}(),
-                                flashUp:function(){if (flash_condition){return flashUpVisible} else{return flashUpInvisible}}(),
-                                flashDown: function(){if (flash_condition){return flashDownVisible} else{return flashDownInvisible}}(),
-                                position: position_condition,
-                                stimJumps: jump_condition,
-                                inwards: inwards_condition,
-                                showFlash: flash_condition,
-
-                                fixTime: fixTime*Math.random(),
-                                flashTime: flashTime*Math.random(),
-                                trialDuration: trialDur,
-                                trialID: ID,
-                            };
-                            // save the current trial in our design structure
-                            test_stimuli.push(T);
-                            // increase the ID by one
-                            ID ++;
-                        }
-                    }
-                }
-            }
-        }
-
-        // first trial: ask user for permission to enter fullscreen
-        let confirm_fullscreen = {
-            type: "fullscreen",
-            message:["<p>Click below to change to fullscreen mode.</p>"],
-            fullscreen_mode: true,
-            button_label: 'Fullscreen',
-            data: {
-                test_part: 'fullscreen_request',
-            }
-        };
-        timeline.push(confirm_fullscreen);
 
         // core trial structure
         let trial = {
@@ -186,6 +66,15 @@
             trialDuration: jsPsych.timelineVariable('trialDuration'), // the trial duration is 1000 ms after the first jump
             flashDuration: flashDur, // the flash is shown for 30 ms in each trial
             waitAfter: waitAfter, // the trial waits 500 ms before presenting feedback
+
+            on_load: function(){
+
+            if (stop){    
+                document.querySelector('#button-central').style.visibility = "hidden";
+                };
+            },
+
+
             runTrial: function() {
                 // this function defines on each trial if it should run or not
                 // get the ID of the current trial
@@ -221,6 +110,20 @@
                 lateResponse = data.lateResponse;
                 // save a repetition value for the feedback trial
                 repeat = data.trialShown;
+
+
+                jatos.studySessionData.totalWaitTime += data.waitTime
+
+                console.log('Total Wait Time');
+                console.log(jatos.studySessionData.totalWaitTime);
+
+
+                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+
+                    stop = true;
+
+                    console.log("You exceded max time");
+                };
 
                 // if the response was early or late and the trial was presented in the firs place,
                 // save the ID of the trial
@@ -277,9 +180,13 @@
         };
         timeline.push(test_procedure);
 
+
         /* start the experiment */
         // load jatos - I can use jatos functions after this line
         jatos.onLoad(function () {
+
+            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":1 * 10 * 1000};
+            jatos.setStudySessionData(studySessionData);
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
@@ -289,7 +196,7 @@
                 platform: navigator.platform, // some information about the web browser
                 scrPixDepth: screen.pixelDepth, // some information about the pixel structure
                 scrColDepth : screen.colorDepth, // some information about the color channels
-                scrOrientation: orientation, // save the orientation information
+                scrOrientation: ori, // save the orientation information
                 scrResolution: window.devicePixelRatio, // save the pixel ratio
                 component: 'Trials_Jump', // name the component
             });
@@ -301,6 +208,7 @@
                     // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    jatos.studySessionData.total_time = performance.now() - jatos.studySessionData.total_time;
                 },
             });
         });

@@ -6,30 +6,18 @@
   <title>Training Serial Dots</title>
   <script src="jspsych-6.0.4/jspsych.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+  <!-- custom scripts -->
   <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
   <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
+  <link href="styles.css" rel="stylesheet" type="text/css">
+  <script src="objects.js"></script>
+  <script type= "text/javascript" src="loops.js"></script>
+  <script src="common_vars.js"></script>
+  <!-- jatos import -->
   <script src="jatos.js"></script>
-  <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
-  <style>
-        p {
-            font-size: 1em;
-        }
-        dot {
-            position:absolute;
-            display:inline;
-            top: 50%;
-            height: 50px;
-            width: 50px;
-            background-color: #000000;
-            border-radius: 50%;
-            margin-top: -25px;
-            margin-left: -25px;
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-        }
-  </style>
-    <!-- meta prevents zooming in -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
+  <!-- css import -->
+  <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" >
 </head>
 
   <body bgcolor='gray'>
@@ -52,73 +40,7 @@
     let flashDuration = 30; // how long the flash will be on the screen in ms
     let waitAfter = 500; // how long we will wait at the end of the trial in ms
 
-    // initialize empty arrays
-    let timeline = []; // the timeline for the final experiment
-    let timelineVariables = []; // the array that will later hold our design structure
-    let repeat_IDs = []; // the array that will hold the IDs to be repeated later
-    let repeat_trials = []; // a copy of the ID array that will be filled after the first round and used for the ID check
-
-    // boolean checks
-    let lateResponse; // if the last dot was touched after trialDuration
-    let orderResponse; // if the dots were touched in order
-    let repeat; // if that trial should be repeated or not
-
-    // parameters for user control
-    let orientation; // get the screen orientation (landscape or portrait)
-    // check the screen
-    if (typeof screen.orientation === 'undefined'){
-        // alternative when orientation is not available
-        // check if the device is wider than high
-        orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-    } else {
-        orientation = [screen.orientation.angle, 'angle']
-    }
-
-
-    // define stimuli on screen
-    let buttonVisible1 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
-    let buttonVisible2 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
-    let buttonVisible3 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
-    let buttonVisible4 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
-    let buttonVisible5 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
-    let buttonVisible6 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
-    let visibleButtons = [buttonVisible1, buttonVisible2, buttonVisible3, buttonVisible4, buttonVisible5, buttonVisible6];
-
-    let buttonInvisible1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>";
-    let buttonInvisible2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>";
-    let buttonInvisible3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>";
-    let buttonInvisible4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-    let buttonInvisible5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-    let buttonInvisible6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-    let invisibleButtons = [buttonInvisible1, buttonInvisible2, buttonInvisible3, buttonInvisible4, buttonInvisible5, buttonInvisible6];
-
-    let flashUpVisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-    let flashDownVisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-
-    // set up values for loop
-    let T; // the trials
-    let nT; // number of trials per condition
-    let tW; // the time window
-    let fT; // flash time
-    let trialID = 0; // a trial ID
-
-    // loop through all trials
-    for (nT = 0; nT < nTrials; nT++){
-      // loop through all time windows
-      for (tW = 0; tW < maxFlashTime; tW = tW+twSize){
-        // save the values for the current trial
-        T = {
-          // the time of the flash will be the time window start + a random value between 0
-          // and the size of the time window
-          flashTime: tW + Math.random()*twSize,
-          trialID: trialID,
-        };
-        // save the trial in our design structure
-        timelineVariables.push(T);
-        // increment the trial ID
-        trialID++;
-      }
-    }
+    let timelineVariables = Serial_loop(nTrials, maxFlashTime, twSize);
 
     // define the main trial for the experiment
     let trial = {
@@ -239,7 +161,7 @@
         platform: navigator.platform,
         scrPixDepth: screen.pixelDepth,
         scrColDepth : screen.colorDepth,
-        scrOrientation: orientation,
+        scrOrientation: ori,
         scrResolution: window.devicePixelRatio,
         component: 'Training_Serial',
       });

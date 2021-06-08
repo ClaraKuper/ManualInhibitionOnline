@@ -1,0 +1,80 @@
+/* CSS defining the dots styles used in the ManualInhibitionOnline experiment */
+
+dot {
+    position:absolute;
+    display: inline;
+    top: 50%;
+    height: 50px;
+    width: 50px;
+    background-color: #000000;
+    border-radius: 50%;
+    margin-top: -25px;
+    margin-left: -25px;
+    -webkit-touch-callout: none; /* prevent marking on iOS Safari */
+    -webkit-user-select: none; /* prevent marking on Safari */
+    user-select: none;
+}
+
+InvisibleDot {
+    position:absolute;
+    display: inline;
+    top: 50%;
+    height: 300px;
+    width: 300px;
+    background-color: #000000;
+    border-radius: 50%;
+    margin-top: -150px;
+    margin-left: -150px;
+    -webkit-touch-callout: none; /* prevent marking on iOS Safari */
+    -webkit-user-select: none; /* prevent marking on Safari */
+    user-select: none;
+}
+
+SerialButtons{
+    position:absolute;
+    display: inline;
+    top: 50%;
+    height:100px;
+    width: 100px;
+    background-color: rgba(63,63,63,0);
+    border-radius: 50%;
+    margin-top: -50px;
+    margin-left: -50px;
+    -webkit-touch-callout: none; /* prevent marking on iOS Safari */
+    -webkit-user-select: none; /* prevent marking on Safari */
+    user-select: none;
+}
+
+
+rectangleUp{
+    position:absolute; 
+    left:0; 
+    top:0; 
+    width:100%; 
+    height:calc(50% - 100px); 
+    background-color:rgba(255,255,255,1);
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+rectangleDown{
+    position:absolute; 
+    left:0; 
+    bottom:0; 
+    width:100%; 
+    height:calc(50% - 100px); 
+    background-color:rgba(255,255,255,1);
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none;
+    user-select: none;
+
+}
+
+p{
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none;
+    user-select: none;
+}
+
+

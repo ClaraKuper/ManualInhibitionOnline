@@ -1,3 +1,4 @@
 jspsych-6.0.4/plugins/templates
 data/
 .ipynb_checkpoints/
+.idea/

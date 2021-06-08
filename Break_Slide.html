@@ -8,8 +8,13 @@
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
     <script src="jatos.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
+    <script src="common_vars.js"></script>
+
     <style>
         p {
             font-size: 1em;
@@ -27,9 +32,8 @@
         console.log('Is there much left? - Yes!');
 
         // initialize some values
-        let break_timeline = []; // the timeline for the break
         let orientation; // the orientation of the screen (user surveillance)
-
+        let time_out; // if the break time is over
 
         // adjust the screen orientation
         if (typeof screen.orientation === 'undefined'){
@@ -40,22 +44,45 @@
 
         /* define break message trial */
         let breakmessage = {
-            type: "instructions",
-            pages:["<p>Time for a break.</p>" +
-                    "<p>Click continue when you're ready to go on. </p>"],
-            show_clickable_nav: true,
-            button_label_next: 'Ok. Continue >',
-            post_trial_gap: 200,
-            data: {
-                test_part: 'break',
+            type: "html-button-response",
+            stimulus: 'Time for a break! Take some time to relax your hands and eyes. ' +
+                'Please be back in 10 minutes latest.',
+            post_trial_gap: 10,
+            choices: ['end break'],
+            trial_duration: 9 * 1000 * 60,
+            on_finish: function(data){
+                // check if the button was pressed or not
+                time_out = data.button_pressed == null;
             }
         };
-        break_timeline.push(breakmessage);
+
+        let final_warning = {
+            type: "html-button-response-conditional",
+            stimulus: 'Please continue with the experiment.',
+            post_trial_gap: 10,
+            choices: ['end break'],
+            trial_duration: 2 * 1000 * 60,
+            runTrial: function (){return time_out}, // executes only when there was no previous response
+            on_finish: function(data){
+                if (data.button_pressed == null && time_out){
+                    // set the duration of the experiment to timeout if this lasts too long
+                    jatos.studySessionData.totalWaitTime = jatos.studySessionData.allowedWaitTime;
+                }
+            }
+        }
+
+        // define a conditional node to run this only when neccessary
+        break_node = {
+            timeline: [breakmessage, final_warning],
+            conditional_function: function(){
+                // the run/no-run condition depends on how much time participants have spent with the the trial.
+                return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+            },
+        }
 
         /* start the experiment */
         // call jatos function, we can use jatos code after this line
         jatos.onLoad(function (){
-
             // add general data properties to all fields of this trial
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
@@ -69,10 +96,8 @@
                 scrResolution: window.devicePixelRatio, // save the pixel ratio
                 component: 'Break_General', // the component of the experiment
             });
-
             jsPsych.init({
-                timeline: break_timeline,
-                fullscreen: true,
+                timeline: [break_node,pseudo_trial],
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);

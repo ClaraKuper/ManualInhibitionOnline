@@ -66,7 +66,7 @@
         // check if fullscreen mode was used
         let screen = {
             type: 'html-button-response',
-            stimulus: "<p>Did your screen switch to fullscreen mode during the experiment?</p>",
+            stimulus: "<p>Did your screen switch to fullscreen mode during the main experiment?</p>",
             choices: ['yes', 'no'],
             test_part: 'outro_screen',
         };
@@ -83,7 +83,7 @@
         timeline.push(comments);
 
         /* define debrief */
-        // end the experiment
+        // end the experiment regularly
         let debrief_block = {
             type: "html-button-response",
             stimulus: "<p>Thanks for your participation!</p>",
@@ -94,6 +94,28 @@
         };
         timeline.push(debrief_block);
 
+        // set up the regular node when the task was successfull
+        success_node = {
+            timeline: timeline,
+            conditional_function: function(){return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime},
+        }
+
+        // a different end message to display when the participant took too much time
+        let debrief_block_fail = {
+            type: "html-button-response",
+            stimulus: "<p>You took too much time for this experiment. The study was ended. We will pay you according to" +
+                "the number of trials you have completed. You can close this window now.</p>",
+            choices: [''],
+            button_html: [''],
+            test_part: 'outro_bye',
+        };
+
+        // set up a seperate node when the trial failed
+        fail_node = {
+            timeline: [debrief_block_fail],
+            conditional_function: function(){return jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime},
+
+        }
 
         /* start the experiment */
         jatos.onLoad(function () {
@@ -112,7 +134,7 @@
 
 
             jsPsych.init({
-                timeline: timeline,
+                timeline: [success_node, fail_node],
                 fullscreen: true,
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();

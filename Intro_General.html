@@ -9,25 +9,8 @@
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
     <script src="jatos.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
-    <style>
-        p {
-            font-size: 1em;
-        }
-        dot {
-            position:absolute;
-            display: inline;
-            top: 50%;
-            height: 50px;
-            width: 50px;
-            background-color: #000000;
-            border-radius: 50%;
-            margin-top: -25px;
-            margin-left: -25px;
-            -webkit-touch-callout: none; /* iOS Safari */
-            -webkit-user-select: none; /* Safari */
-        }
-    </style>
     <!-- below, we prevent scaling and marking -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
@@ -55,8 +38,7 @@
         let welcome = {
             type: "instructions",
             pages:["<p>Welcome to the experiment!</p>" +
-                    "<p>If you opened this experiment with an app (slack/whatsapp), please close it again, " +
-            "copy the link to your browser and run it from there. Thank you! </p>"],
+                    "<p>Please run this experiment on a touchscreen device in your preferred broweser.</p>"],
             show_clickable_nav: true,
             button_label_next: 'Ok. Continue >',
             post_trial_gap: 200,
@@ -69,12 +51,10 @@
         /* define instructions trial */
         let general_intro = {
             type: "instructions",
-            pages: ["<p>Please bring your touchscreen device in landscape mode now. If you don't have " +
-                "a touchscreen device, contact the person responsible for the experiment.</p>",
+            pages: ["<p>Please bring your touchscreen device in landscape mode now. </p>",
                 "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 20 minutes and you shouldn't " +
-                "close the tab during the experiment. You can take breaks at the beginning of each trial (after feedback) and when you " +
-                "see the break message. You are free to end the experiment whenever you want, your data will only be saved "+
-                "if you complete the full experiment.</p>",
+                "close the tab during the experiment. There will be dedicated times for breaks during the experiment. However, you shouldn't " +
+                "take breaks longer than 15 minutes.</p>",
                 "<p>This experiment has two parts with different tasks. Before each part, we will introduce you to the upcoming " +
                 "task. The parts are run after each other, so you only have to concentrate on doing one at a time.</p>"],
             show_clickable_nav: true,
@@ -87,7 +67,11 @@
         welcome_timeline.push(general_intro);
 
         /* start the experiment */
-        //jatos.onLoad(function () {
+        jatos.onLoad(function () {
+
+            // track the timing across the experiment
+            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":1 * 10 * 1000};
+            jatos.setStudySessionData(studySessionData);
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
@@ -104,13 +88,12 @@
 
             jsPsych.init({
                 timeline: welcome_timeline,
-                fullscreen: true,
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);
                 },
             });
-        //});
+        });
     </script>
 </body>
 

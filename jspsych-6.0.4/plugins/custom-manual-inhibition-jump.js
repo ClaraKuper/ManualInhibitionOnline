@@ -165,8 +165,8 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         let flashOnTime; // flash appeared (timestamp)
         let flashOffTime; // flash was removed (timestamp)
         let tDur; // trial length (duration)
-        let initTime = performance.now();
-        let waitTime;
+        let initTime = performance.now(); // when the trial was initiated (timestamp)
+        let waitTime; // when the dot in the center was pressed (duration)
   
         // xy properties
         let allTouches = []; // array of touches across the entire screen (X, Y, time)
@@ -254,7 +254,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           // save the time
           flashOnTime = jsPsych.totalTime();
           // set timeout to hide flash
-          hideTO = setTimeout(hide_flash, flashDur);
+          hideTO = setTimeout(hide_flash, flash_dur);
   
           // hide side dot
           document.getElementById('stimulus-side').style.visibility = 'hidden';
@@ -275,7 +275,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             xyCoords.centralX = e.changedTouches[0].screenX;
             xyCoords.centralY = e.changedTouches[0].screenY;
           };
-
+          // measure how long the person waited before a response
           waitTime = startTime - initTime;
         };
   
@@ -292,8 +292,6 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           rtTime = goTime - rtTime;
           // start movement time timer
           mtTime = goTime;
-
-          
 
           // function hides the central button
           document.getElementById('button-central').style.visibility = 'hidden';
@@ -368,7 +366,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             "respTime": respTime, // finger was on side button
             "flashOnTime": flashOnTime, // when the flash appeared
             "flashOffTime": flashOffTime, // when the flash disappeared
-            "waitTime":waitTime,
+            "waitTime": waitTime, // how long the participant waited till they pressed the first button
             "tDur": tDur, // trial length (duration)
   
             // check values
@@ -411,7 +409,8 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         // if we should not run the trial
         // save a minimal trial data version
         let trial_data = {
-          "trialShown": false,
+          "trialShown": false, // marker that the trial was not shown
+          "waitTime": 0.1, // time value for adding up the duration of the experiment
         };
   
         // move on to the next trial

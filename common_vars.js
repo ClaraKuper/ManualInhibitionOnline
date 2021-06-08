@@ -21,16 +21,14 @@ if (typeof screen.orientation === 'undefined'){
     ori = [screen.orientation.angle, 'angle']
 }
 
-
-// request fullscreen permission
-let confirm_fullscreen = {
-    type: "fullscreen",
-    message:["<p>Click below to change to fullscreen mode.</p>"],
-    fullscreen_mode: true,
-    button_label: 'Fullscreen',
-    data: {
-        test_part: 'fullscreen_request',
-    }
+// define an empty trial that we can show instead of the real trials
+let pseudo_trial = {
+    type: 'html-button-response',
+    stimulus: '',
+    post_trial_gap: 1,
+    choices: [''],
+    button_html: '',
+    trial_duration: 1,
 };
-timeline.push(confirm_fullscreen);
+
 

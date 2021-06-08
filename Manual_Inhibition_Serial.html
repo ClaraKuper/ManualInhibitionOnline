@@ -7,8 +7,10 @@
   <script src="jspsych-6.0.4/jspsych.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+
   <!-- custom scripts -->
-  <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial-Laura.js"></script>
+  <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
   <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
 
   <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>  
@@ -31,41 +33,36 @@
       // salute the hacker
       console.log('42');
 
-
-      let stop = false;
-
-    
-      let timeControl = 0
-
-      let startTime;
-      let endTime;
-      let durationTime;
-
-
-      
-
-
       // define parameter values for the experiment
-      let nTrials = 10; // number of trials per condition
-      let trialDuration = 1500; // duration of the trial
+      // ALERT! Parameters were changed for testing
+      let nTrials = 1; // number of trials per condition
+      let trialDuration = 5000; //  1500 duration of the trial
       // for this design, we will create n even time windows between 0 up to the duration of the experiment.
       // we will sample nTrials random trials in each of these time windows.
       // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
       // and avoids clusters appearing by chance.
       let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
-      let twSize = 100; // the size of the time windows
+      let twSize = 1000; // 100 the size of the time windows
       let flashDuration = 30; // how long the flash will be on the screen in ms
       let waitAfter = 500; // how long we will wait at the end of the trial in ms
-
-      
-
+      // load the trial structure
       let timelineVariables = Serial_loop(nTrials, maxFlashTime, twSize);
-      
+
+      // ask for fullscreen permission
+      let confirm_fullscreen = {
+          type: "fullscreen",
+          message:["<p>Click below to change to fullscreen mode.</p>"],
+          fullscreen_mode: true,
+          button_label: 'Fullscreen',
+          data: {
+              test_part: 'fullscreen_request',
+          }
+      };
+      timeline.push(confirm_fullscreen);
+
       // define the main trial for the experiment
       let trial = {
         type: 'manual-inhibition-serial', // calls the custom plugin
-
-
         buttonsVisible: visibleButtons, // the visible buttons are an array of dots
         buttonsInvisible: invisibleButtons, // the invisible buttons are an array of dots
         flashUp: flashUpVisible, // the upper part of the white flash
@@ -75,37 +72,23 @@
         trialDuration: trialDuration, // the trial duration after the first point was touched
         waitAfter: waitAfter, // how long to wait after the trial ended
 
-        on_load: function(){
-
-          if (stop){
-            
-            for (var i = 0; i < trial.buttonsInvisible.length; i++) {
-                  document.querySelector('#invisible-button-' + i).style.visibility = "hidden";
-              };
-
-          };
-          // Window with exceded time and do you still want to submit data? Also set a specific time limit for the training, include in all parts 
-          // 15 min for instructions 
-
-    
-        },
-
-       
-
         runTrial: function() {
           // in this function, we define if we want to run this trial or not
           // get the id of the current trial
-                let id_here = jsPsych.timelineVariable('trialID', true);
-                // if there are any values in the repeat trial array
-                if (repeat_trials.length > 0) {
-                  // run the trial if the value is inside the array
-                  repeat = repeat_trials.includes(id_here);
-                } else {
-                  // this is the first round, we run every trial
-                  repeat = true;
-                }
-                return repeat;
-                },
+          let id_here = jsPsych.timelineVariable('trialID', true);
+          // check if we are past time
+          if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+            repeat = false
+          } else if (repeat_trials.length > 0) {
+            // run the trial if the value is inside the array
+            repeat = repeat_trials.includes(id_here);
+          // if there are any values in the repeat trial array
+          } else {
+            // this is the first round, we run every trial
+            repeat = true;
+          }
+          return repeat;
+        },
         data:{
           // assign relevant data
           test_part: 'Serial-Inhibition', // the part of the experiment
@@ -113,25 +96,15 @@
           trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
 
         },
+
         on_finish:  function(data){
           // evaluate if the there were any mistakes and if the trial need repetition
           orderResponse = data.orderResponse; // were the answers given in order
           lateResponse = data.lateResponse; // was the response fast enough
-
-          jatos.studySessionData.totalWaitTime += data.waitTime
-
-          console.log('Total Wait Time');
-          console.log(jatos.studySessionData.totalWaitTime);
-          
-
-          if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
-
-            stop = true;
-
-            console.log("You exceded max time");
-
-            };
-        
+          // monitor the time till the first button was pressed
+          if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
+            jatos.studySessionData.totalWaitTime += data.waitTime;
+          }
 
           // if out of order or late response, create new T object and push it to repeat_IDs
           if (data.trialShown) {
@@ -146,10 +119,6 @@
           }
         },
       };
-
-
-  
- 
 
       // display feedback
       let feedback = {
@@ -196,11 +165,17 @@
     };
     timeline.push(test_procedure);
 
+    // define a timeline that is only executed when the allowed waiting time was not exceeded
+    conditional_timeline = {
+      timeline: timeline,
+      conditional_function: function(){
+        return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+      },
+    };
+
     /* start the experiment */
     // load jatos - I can use jatos functions after this line
     jatos.onLoad(function () {
-
-    
 
       jsPsych.data.addProperties({
         subject: jatos.workerId, // id of the subject
@@ -216,8 +191,7 @@
       });
 
       jsPsych.init({
-          timeline: timeline, // use the timeline to run the experiment
-          fullscreen: true, // run in fullscreen if possible
+          timeline: [conditional_timeline, pseudo_trial], // use the timeline to run the experiment
           on_finish: function() {
             // once the code has run: save the results and call the next jatos component
             let resultJson = jsPsych.data.get().json();

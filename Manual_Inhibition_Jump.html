@@ -7,9 +7,11 @@
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+
     <!-- custom scripts -->
     <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
-    <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump-Laura.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <script src="objects.js"></script>
     <script type= "text/javascript" src="loops.js"></script>
@@ -30,26 +32,33 @@
         // salute the hacker
         console.log("Welcome to the show!"); 
 
+        // ALERT! PARAMETERS WERE CHANGED FOR TESTING
         // define parameter values for the experiment:
         let nTrials = 1; // the number of trials
-        let cFlash = [0]; // the flash conditions
-        let cJump = [0]; // the jump conditions
-        let cInwards = [0]; // inward/not condition
-        let cPosition = ['l']; // the position condition
+        let cFlash = [0,1]; // the flash conditions
+        let cJump = [0,1]; // the jump conditions
+        let cInwards = [0,1]; // inward/not condition
+        let cPosition = ['l', 'r']; // the position condition
         let fixTime = 1000; // how long the central point is maximally touched before the trial starts
         let flashTime = 250; // the longest time till the flash occurs after trial start
         let trialDur = 1000; // the duration of the experiment (without fixation time)
         let waitAfter = 500; // time to wait after each trial
         let flashDur = 30; // how long to display the flash in ms
 
-       
-
-        let stop = false;
-
-
-
+        // call the function that sets up all our trials
         let test_stimuli = Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur);
 
+        // let participants confirm that they want to switch to fullscreen
+        let confirm_fullscreen = {
+            type: "fullscreen",
+            message:["<p>Click below to change to fullscreen mode.</p>"],
+            fullscreen_mode: true,
+            button_label: 'Fullscreen',
+            data: {
+                test_part: 'fullscreen_request',
+            },
+        };
+        timeline.push(confirm_fullscreen);
 
         // core trial structure
         let trial = {
@@ -67,28 +76,23 @@
             flashDuration: flashDur, // the flash is shown for 30 ms in each trial
             waitAfter: waitAfter, // the trial waits 500 ms before presenting feedback
 
-            on_load: function(){
-
-            if (stop){    
-                document.querySelector('#button-central').style.visibility = "hidden";
-                };
-            },
-
-
             runTrial: function() {
                 // this function defines on each trial if it should run or not
                 // get the ID of the current trial
                 let id_here = jsPsych.timelineVariable('trialID', true);
-                // repeat_trials is empty till the first loop completed
-                if (repeat_trials.length > 0) {
-                    // check if the current trial ID was included in the repetition list
-                    repeat = repeat_trials.includes(id_here);
+                // check if we are past time
+                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+                  repeat = false
+                } else if (repeat_trials.length > 0) {
+                  // run the trial if the value is inside the array
+                  repeat = repeat_trials.includes(id_here);
+                // if there are any values in the repeat trial array
                 } else {
-                    // if the repetition list is empty, we are in the first loop and run every trial
-                    repeat =  true;
+                  // this is the first round, we run every trial
+                  repeat = true;
                 }
                 return repeat;
-                },
+            },
 
             // save the data from the current trial
             data: {
@@ -111,19 +115,10 @@
                 // save a repetition value for the feedback trial
                 repeat = data.trialShown;
 
-
-                jatos.studySessionData.totalWaitTime += data.waitTime
-
-                console.log('Total Wait Time');
-                console.log(jatos.studySessionData.totalWaitTime);
-
-
-                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
-
-                    stop = true;
-
-                    console.log("You exceded max time");
-                };
+                // motinor the wait times before the first button press
+                if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
+                    jatos.studySessionData.totalWaitTime += data.waitTime;
+                }
 
                 // if the response was early or late and the trial was presented in the firs place,
                 // save the ID of the trial
@@ -180,14 +175,18 @@
         };
         timeline.push(test_procedure);
 
+        // define a timeline that is only executed when the allowed wait time is not exceeded
+        conditional_timeline = {
+            timeline: timeline,
+            conditional_function: function(){
+                return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+            },
+
+        }
 
         /* start the experiment */
         // load jatos - I can use jatos functions after this line
         jatos.onLoad(function () {
-
-            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":1 * 10 * 1000};
-            jatos.setStudySessionData(studySessionData);
-
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
                 screenWidth: screen.width, // screen Width in px
@@ -202,13 +201,11 @@
             });
 
             jsPsych.init({
-                timeline: timeline, // use the timeline to run the experiment
-                fullscreen: true, // run in fullscreen if possible
+                timeline: [conditional_timeline, pseudo_trial], // use the timeline to run the experiment
                 on_finish: function() {
                     // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();
                     jatos.submitResultData(resultJson, jatos.startNextComponent);
-                    jatos.studySessionData.total_time = performance.now() - jatos.studySessionData.total_time;
                 },
             });
         });

@@ -127,8 +127,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             let touchOn = []; // when buttons were pressed - array of timestamps
             let touchOff = []; // when buttons were released - array of timestamps
             
-            let initTime = performance.now();
-            let waitTime;
+            let initTime = performance.now(); // when the trial was initialized (timestamp)
+            let waitTime; // how long the participant waited till they clicked the first button (duration)
   
             let tDur; // trial length (duration)
   
@@ -288,7 +288,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                     "touchOn": touchOn, // when buttons were pressed - array of timestamps
                     "touchOff": touchOff, // when buttons were released - array of timestamps
                     "tDur": tDur, // trial length (duration)
-                    "waitTime":waitTime,
+                    "waitTime": waitTime, // time till the first point was touched (duration)
   
                     // coordinates
                     "touchX": touchCoordsX, // X coordinates of touches - array
@@ -349,7 +349,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             // if we don't run ths trial, execute this minimal version
             let trial_data = {
                 // data array that indicates that the trial didn't run
-                "trialShown": false,
+                "trialShown": false, // marker that the trial was not shown
+                "waitTime": 0.1, // value to add onto the duration
             };
             // move on to the next trial immediately
             jsPsych.finishTrial(trial_data);

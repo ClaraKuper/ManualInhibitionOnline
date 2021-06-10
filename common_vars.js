@@ -10,6 +10,8 @@ let lateResponse; // was the response given in time
 let earlyResponse; // was the response given too early
 let repeat; // check if the current trial should be repeated or not
 
+let orderResponse; // check if all buttons in the serial trial were pressed in order
+
 // parameters for user control
 let ori; // get the screen orientation (landscape or portrait)
 // check the screen

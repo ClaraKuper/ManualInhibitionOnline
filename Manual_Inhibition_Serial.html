@@ -8,13 +8,10 @@
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
-
   <!-- custom scripts -->
   <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
   <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
-
-  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>  
-  
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
   <link href="styles.css" rel="stylesheet" type="text/css">
   <script src="objects.js"></script>
   <script type= "text/javascript" src="loops.js"></script>
@@ -35,14 +32,14 @@
 
       // define parameter values for the experiment
       // ALERT! Parameters were changed for testing
-      let nTrials = 1; // number of trials per condition
-      let trialDuration = 5000; //  1500 duration of the trial
+      let nTrials = 10; // number of trials per condition
+      let trialDuration = 1500; //  1500 duration of the trial
       // for this design, we will create n even time windows between 0 up to the duration of the experiment.
       // we will sample nTrials random trials in each of these time windows.
       // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
       // and avoids clusters appearing by chance.
       let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
-      let twSize = 1000; // 100 the size of the time windows
+      let twSize = 100; // 100 the size of the time windows
       let flashDuration = 30; // how long the flash will be on the screen in ms
       let waitAfter = 500; // how long we will wait at the end of the trial in ms
       // load the trial structure

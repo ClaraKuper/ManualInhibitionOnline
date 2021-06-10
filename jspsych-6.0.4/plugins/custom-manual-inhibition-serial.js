@@ -316,7 +316,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
             // EVENT LISTENERS
             // record all touches across the document
-            document.addEventListener('mousedown', function (e) {
+            document.addEventListener(/*'mousedown'*/'touchstart', function (e) {
                 // change the xy coordinates
                 xyCrossScreen.touchX = e.pageX;
                 xyCrossScreen.touchY = e.pageY;
@@ -335,8 +335,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             // note: we only listen on invisible buttons. the visible buttons are only a guidance for the user
             // and the invisible buttons are actually larger
             for (var i = 0; i < trial.buttonsInvisible.length; i++) {
-                display_element.querySelector('#invisible-button-' + i).addEventListener('mousedown', onTouch)
-                display_element.querySelector('#invisible-button-' + i).addEventListener('mouseup', onRelease)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mousedown'*/'touchstart', onTouch)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mouseup'*/'touchend', onRelease)
             };
   
             // add an error event listener

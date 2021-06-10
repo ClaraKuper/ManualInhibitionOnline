@@ -141,7 +141,7 @@ jsPsych.plugins["html-button-response-touchdown"] = (function() {
     let flash_time = Math.random()*200;
 
     // record all touches across the document
-    document.addEventListener('touchstart', function(e){
+    document.addEventListener('click', function(e){
 
         xyCrossScreen.touchX = e.pageX;
         xyCrossScreen.touchY = e.pageY;

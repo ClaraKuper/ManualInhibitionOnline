@@ -12,6 +12,10 @@
   <script src="jatos.js"></script>
   <link href="styles.css" rel="stylesheet" type="text/css">
   <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
+  <script src="objects.js"></script>
+  <script src="common_vars.js"></script>
+
+
   <!-- below, we prevent scaling and marking -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
@@ -22,45 +26,6 @@
 
   // salute the hacker
   console.log('Wheee');
-
-  // define all arrays we will need
-  let timeline = [];
-  let timelineVariables = [];
-
-  // define booleans
-  let lateResponse;
-  let orderResponse;
-
-  // define screen orientation to monitor user
-  let scrOrientation;
-  // get screen orientation information
-  if (typeof screen.orientation === 'undefined'){
-     // if screen.orientation doesn't work, check if the device is broader than high.
-      scrOrientation = [screen.innerHeight<screen.innerWidth, 'rel']
-  } else {
-      scrOrientation = [screen.orientation.angle, 'angle']
-  }
-
-  // define all html style elements without their id (id is added in the plugin)
-  let buttonVisible1 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 200px);'></dot>";
-  let buttonVisible2 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 120px);'></dot>";
-  let buttonVisible3 = "<dot style = 'background-color: rgb(0,0,0); left:calc(50% - 40px);'></dot>";
-  let buttonVisible4 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 40px); margin-left:0; margin-right: -25px'></dot>";
-  let buttonVisible5 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 120px); margin-left:0; margin-right: -25px'></dot>";
-  let buttonVisible6 = "<dot style = 'background-color: rgb(0,0,0); right:calc(50% - 200px); margin-left:0; margin-right: -25px'></dot>";
-  let visibleButtons = [buttonVisible1, buttonVisible2, buttonVisible3, buttonVisible4, buttonVisible5, buttonVisible6];
-
-  let buttonInvisible1 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 200px); margin-left:-50px; margin-top: -50px'></dot>";
-  let buttonInvisible2 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 120px); margin-left:-50px; margin-top: -50px'></dot>";
-  let buttonInvisible3 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; left:calc(50% - 40px); margin-left: -50px; margin-top: -50px'></dot>";
-  let buttonInvisible4 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 40px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-  let buttonInvisible5 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 120px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-  let buttonInvisible6 = "<dot style = 'background-color: rgba(63,63,63,0); height:100px; width:100px; right:calc(50% - 200px); margin-left:0; margin-right: -50px; margin-top: -50px'></dot>";
-  let invisibleButtons = [buttonInvisible1, buttonInvisible2, buttonInvisible3, buttonInvisible4, buttonInvisible5, buttonInvisible6];
-
-  let flashUpVisible = "<div style = 'position:absolute; left:0; top:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-  let flashDownVisible = "<div style = 'position:absolute; left:0; bottom:0; width:100%; height:calc(50% - 100px); background-color:rgba(255,255,255,1);-webkit-touch-callout: none; -webkit-user-select: none;'></div>";
-
 
   /* welcome message to jump tutorial */
   let serialtut_intro = {
@@ -176,6 +141,13 @@
   };
   timeline.push(instructions_serial3);
 
+  // define a timeline that is only executed when the allowed waiting time was not exceeded
+  let conditional_timeline = {
+    timeline: timeline,
+    conditional_function: function(){
+      return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+    },
+  };
 
   // load jatos and run the instructions
   jatos.onLoad(function () {
@@ -188,13 +160,13 @@
         platform: navigator.platform,
         scrPixDepth: screen.pixelDepth,
         scrColDepth : screen.colorDepth,
-        scrOrientation: scrOrientation,
+        scrOrientation: ori,
         scrResolution: window.devicePixelRatio,
         component: 'Intro_Serial',
       });
 
       jsPsych.init({
-          timeline: timeline,
+          timeline: [conditional_timeline, pseudo_trial],
           fullscreen: true,
           on_finish: function() {
               var resultJson = jsPsych.data.get().json();

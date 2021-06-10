@@ -8,6 +8,7 @@
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.0.4/plugins/jspsych-image-button-response.js"></script>
     <script src="jatos.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
@@ -52,7 +53,7 @@
         let general_intro = {
             type: "instructions",
             pages: ["<p>Please bring your touchscreen device in landscape mode now. </p>",
-                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 20 minutes and you shouldn't " +
+                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 30 minutes and you shouldn't " +
                 "close the tab during the experiment. There will be dedicated times for breaks during the experiment. However, you shouldn't " +
                 "take breaks longer than 15 minutes.</p>",
                 "<p>This experiment has two parts with different tasks. Before each part, we will introduce you to the upcoming " +
@@ -66,11 +67,29 @@
         };
         welcome_timeline.push(general_intro);
 
+        let show_tablet = {
+            type: "image-button-response",
+            stimulus: "./tabletUse.jpg",
+            choices: ["Ok. Continue >"],
+            stimulus_height: 400,
+            prompt: "If you are using a tablet, please put it down on a table and use your index finger for responses."
+        }
+        welcome_timeline.push(show_tablet);
+
+        let show_phone = {
+            type: "image-button-response",
+            stimulus: "./phoneUse.jpg",
+            choices: ["Ok. Continue >"],
+            stimulus_height: 400,
+            prompt: "If you are using a phone, please put it down on a table, fixate with one hand and use your index finger for responses."
+        }
+        welcome_timeline.push(show_phone);
+
         /* start the experiment */
         jatos.onLoad(function () {
 
             // track the timing across the experiment
-            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":1 * 10 * 1000};
+            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":60 * 10 * 1000};
             jatos.setStudySessionData(studySessionData);
 
             jsPsych.data.addProperties({

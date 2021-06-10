@@ -7,6 +7,8 @@
   <script src="jspsych-6.0.4/jspsych.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
   <script src="jspsych-6.0.4/plugins/jspsych-fullscreen.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+
   <!-- custom scripts -->
   <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-serial.js"></script>
   <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
@@ -36,7 +38,7 @@
     // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
     // and avoids clusters appearing by chance.
     let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
-    let twSize = 100; // the size of the time windows
+    let twSize = 250; // the size of the time windows
     let flashDuration = 30; // how long the flash will be on the screen in ms
     let waitAfter = 500; // how long we will wait at the end of the trial in ms
 
@@ -151,6 +153,14 @@
     };
     timeline.push(end_instructions);
 
+      // define a timeline that is only executed when the allowed waiting time was not exceeded
+    let conditional_timeline = {
+      timeline: timeline,
+      conditional_function: function(){
+        return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+      },
+    };
+
 
     jatos.onLoad(function () {
       jsPsych.data.addProperties({
@@ -167,7 +177,7 @@
       });
 
       jsPsych.init({
-        timeline: timeline,
+        timeline: [conditional_timeline, pseudo_trial],
         fullscreen: true,
         on_finish: function() {
           let resultJson = jsPsych.data.get().json();

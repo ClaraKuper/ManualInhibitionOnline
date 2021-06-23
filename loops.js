@@ -58,7 +58,7 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
                     // save the current trial in our design structure
                     test_stimuli.push(T);
                     // increase the ID by one
-                    ID ++;
+                    ID++;
                 }
             }
         }
@@ -72,7 +72,7 @@ function Serial_loop(nTrials, maxFlashTime, twSize) {
     let nT; // number of trials per condition
     let tW; // the time window
     let fT; // flash time
-    let trialID = 0; // a trial ID
+    let ID = 0; // a trial ID
 
     let test_stimuli = []; // the array that will later hold our design structure
 
@@ -85,12 +85,12 @@ function Serial_loop(nTrials, maxFlashTime, twSize) {
           // the time of the flash will be the time window start + a random value between 0
           // and the size of the time window
           flashTime: tW + Math.random()*twSize,
-          trialID: trialID,
+          trialID: ID,
         };
         // save the trial in our design structure
         test_stimuli.push(T);
         // increment the trial ID
-        trialID++
+        ID++
       }
     }
 

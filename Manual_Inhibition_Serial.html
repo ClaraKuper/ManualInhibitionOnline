@@ -17,7 +17,7 @@
   <script type= "text/javascript" src="loops.js"></script>
   <script src="common_vars.js"></script>
   <!-- jatos import -->
-  <script src="jatos.js"></script>
+  <!--script src="jatos.js"></script -->
   <!-- css import -->
   <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
     <!-- use the line bleo to prevent user scaling and marking -->
@@ -74,9 +74,10 @@
           // get the id of the current trial
           let id_here = jsPsych.timelineVariable('trialID', true);
           // check if we are past time
-          if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
-            repeat = false
-          } else if (repeat_trials.length > 0) {
+          //if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+          //  repeat = false
+          //} else
+          if (repeat_trials.length > 0) {
             // run the trial if the value is inside the array
             repeat = repeat_trials.includes(id_here);
           // if there are any values in the repeat trial array
@@ -88,7 +89,7 @@
         },
         data:{
           // assign relevant data
-          test_part: 'Serial-Inhibition', // the part of the experiment
+          test_part: 'trial', // the part of the experiment
           flashTime: jsPsych.timelineVariable('flashTime'),  // the time when a flash was shown
           trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
 
@@ -99,9 +100,9 @@
           orderResponse = data.orderResponse; // were the answers given in order
           lateResponse = data.lateResponse; // was the response fast enough
           // monitor the time till the first button was pressed
-          if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
-            jatos.studySessionData.totalWaitTime += data.waitTime;
-          }
+          //if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
+          //  jatos.studySessionData.totalWaitTime += data.waitTime;
+          // }
 
           // if out of order or late response, create new T object and push it to repeat_IDs
           if (data.trialShown) {
@@ -165,17 +166,17 @@
     // define a timeline that is only executed when the allowed waiting time was not exceeded
     conditional_timeline = {
       timeline: timeline,
-      conditional_function: function(){
-        return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
-      },
+      //conditional_function: function(){
+        //return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+      //},
     };
 
     /* start the experiment */
     // load jatos - I can use jatos functions after this line
-    jatos.onLoad(function () {
+    //jatos.onLoad(function () {
 
       jsPsych.data.addProperties({
-        subject: jatos.workerId, // id of the subject
+        //subject: jatos.workerId, // id of the subject
         screenWidth: screen.width, // screen Width in px
         screenHeight: screen.height, // screen Height in px
         userInfo: navigator.userAgent, // some information about the user device
@@ -184,7 +185,7 @@
         scrColDepth : screen.colorDepth, // some information about the color channels
         scrOrientation: ori, // save the orientation information
         scrResolution: window.devicePixelRatio, // save the pixel ratio
-        component: 'Inhibition_Serial', // name the component
+        component: 'Trials_Serial', // name the component
       });
 
       jsPsych.init({
@@ -192,10 +193,10 @@
           on_finish: function() {
             // once the code has run: save the results and call the next jatos component
             let resultJson = jsPsych.data.get().json();
-            jatos.submitResultData(resultJson, jatos.startNextComponent);
+            //jatos.submitResultData(resultJson, jatos.startNextComponent);
           }
       });
-  });
+  //});
     </script>
   </body>
 </html>

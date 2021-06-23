@@ -160,12 +160,13 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         let endTime; // trial end (timestamp)
         let rtTime; // reaction time (duration)
         let mtTime; // movement time (duration)
+        let goSignalTime; // stimulus jumped (timestamp)
         let goTime; // finger lift from central (timestamp)
         let respTime; // finger landed on side (timestamp)
         let flashOnTime; // flash appeared (timestamp)
         let flashOffTime; // flash was removed (timestamp)
         let tDur; // trial length (duration)
-        let initTime = performance.now(); // when the trial was initiated (timestamp)
+        let initTime = jsPsych.totalTime(); // when the trial was initiated (timestamp)
         let waitTime; // when the dot in the center was pressed (duration)
   
         // xy properties
@@ -185,7 +186,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
         // stimulus coordinates check
         let sideStim = document.getElementById('stimulus-side').getBoundingClientRect(); // element to save the side dot position
-        let centralStim = document.getElementById('stimulus-side').getBoundingClientRect(); // element to save the central dot position
+        let centralStim = document.getElementById('centralPointDiv').getBoundingClientRect(); // element to save the central dot position
         let jumpedStim = document.getElementById('stimulus-jumped').getBoundingClientRect(); // element to save the jumped dot position
   
   
@@ -193,7 +194,6 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         let earlyResponse = false; // response before jump
         let lateResponse = true; // response after trial duration
         let goSignal = false; // jump happened
-        let firstTouched = false; // fixation point was touched
   
         // timout handles
         let flashTO; // flash appearance timeout
@@ -235,6 +235,8 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           endTO = setTimeout(end_trial, trial_dur);
           //start rt timer
           rtTime = jsPsych.totalTime();
+          // set timestampe
+          goSignalTime = jsPsych.totalTime();
           // confirm that a go signal was shown
           goSignal = true;
         };
@@ -362,6 +364,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             // custom timing
             "startTime": startTime, // trial started
             "endTime": endTime, // trial ended
+            "goSignalTime": goSignalTime, // go signal was shown
             "goTime": goTime, // finger was lifted
             "respTime": respTime, // finger was on side button
             "flashOnTime": flashOnTime, // when the flash appeared

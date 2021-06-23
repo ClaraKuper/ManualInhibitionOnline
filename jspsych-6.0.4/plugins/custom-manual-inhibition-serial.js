@@ -127,7 +127,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             let touchOn = []; // when buttons were pressed - array of timestamps
             let touchOff = []; // when buttons were released - array of timestamps
             
-            let initTime = performance.now(); // when the trial was initialized (timestamp)
+            let initTime = jsPsych.totalTime(); // when the trial was initialized (timestamp)
             let waitTime; // how long the participant waited till they clicked the first button (duration)
   
             let tDur; // trial length (duration)
@@ -151,8 +151,10 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             };
   
             // stim coordinates
-            let firstRect = document.getElementById('visible-button-0').getBoundingClientRect(); // position of the first stimulus on screen
-  
+            let firstRect = document.getElementById('leftTarDiv').getBoundingClientRect(); // position of the first stimulus on screen
+
+            // added
+            console.log(firstRect);
             // boolean
             let orderResponse = true;
             let lateResponse = false;

@@ -40,7 +40,8 @@
         let cInwards = [0,1]; // inward/not condition
         let cPosition = ['l', 'r']; // the position condition
         let fixTime = 1000; // how long the central point is maximally touched before the trial starts
-        let flashTime = 250; // the longest time till the flash occurs after trial start
+        // longer delay than in uploaded version
+        let flashTime = 350; //250; // the longest time till the flash occurs after trial start
         let trialDur = 500; // the duration of the experiment (without fixation time)
         let waitAfter = 500; // time to wait after each trial
         let flashDur = 30; // how long to display the flash in ms
@@ -120,7 +121,7 @@
                     jatos.studySessionData.totalWaitTime += data.waitTime;
                 }
 
-                // if the response was early or late and the trial was presented in the firs place,
+                // if the response was early or late and the trial was presented in the first place,
                 // save the ID of the trial
                 if (data.trialShown){
                     if (lateResponse || earlyResponse){

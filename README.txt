@@ -15,3 +15,4 @@ The jspsych library needs to be included in the experiment folder before uploadi
 Change log:
 
 July 27th 2021 (Clara): Change to serial task - position of dots is not regular but jittered. Change was introduced to make movement preparation harder.  
+July 28th 2021 (Clara): Fix position readout bug (the position was saved with respect to the group of objects, not to every single dot).

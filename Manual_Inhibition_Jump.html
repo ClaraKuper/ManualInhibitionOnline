@@ -17,7 +17,7 @@
     <script type= "text/javascript" src="loops.js"></script>
     <script src="common_vars.js"></script>
     <!-- jatos import -->
-    <script src="jatos.js"></script>
+    <!-- script src="jatos.js"></script -->
     <!-- css import -->
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
     <!-- meta prevents zooming in -->
@@ -82,9 +82,10 @@
                 // get the ID of the current trial
                 let id_here = jsPsych.timelineVariable('trialID', true);
                 // check if we are past time
-                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+                /* if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
                   repeat = false
-                } else if (repeat_trials.length > 0) {
+                } else */
+                if (repeat_trials.length > 0) {
                   // run the trial if the value is inside the array
                   repeat = repeat_trials.includes(id_here);
                 // if there are any values in the repeat trial array
@@ -117,9 +118,10 @@
                 repeat = data.trialShown;
 
                 // motinor the wait times before the first button press
+                /*
                 if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
                     jatos.studySessionData.totalWaitTime += data.waitTime;
-                }
+                }*/
 
                 // if the response was early or late and the trial was presented in the first place,
                 // save the ID of the trial
@@ -180,16 +182,17 @@
         conditional_timeline = {
             timeline: timeline,
             conditional_function: function(){
-                return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+                //return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+                return true;
             },
 
         }
 
         /* start the experiment */
         // load jatos - I can use jatos functions after this line
-        jatos.onLoad(function () {
+        //jatos.onLoad(function () {
             jsPsych.data.addProperties({
-                subject: jatos.workerId, // id of the subject
+                //subject: jatos.workerId, // id of the subject
                 screenWidth: screen.width, // screen Width in px
                 screenHeight: screen.height, // screen Height in px
                 userInfo: navigator.userAgent, // some information about the user device
@@ -206,10 +209,10 @@
                 on_finish: function() {
                     // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    //jatos.submitResultData(resultJson, jatos.startNextComponent);
                 },
             });
-        });
+        //});
     </script>
 </body>
 

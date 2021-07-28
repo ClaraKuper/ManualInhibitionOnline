@@ -185,9 +185,14 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         };
   
         // stimulus coordinates check
-        let sideStim = document.getElementById('stimulus-side').getBoundingClientRect(); // element to save the side dot position
-        let centralStim = document.getElementById('centralPointDiv').getBoundingClientRect(); // element to save the central dot position
-        let jumpedStim = document.getElementById('stimulus-jumped').getBoundingClientRect(); // element to save the jumped dot position
+        let sideStim = document.getElementsByClassName('target')[0].getBoundingClientRect(); // element to save the side dot position
+        let centralStim = document.getElementsByClassName('centralPoint')[0].getBoundingClientRect(); // element to save the central dot position
+        let jumpedStim = document.getElementsByClassName('targetShift');
+        if (jumpedStim.length>0){
+          jumpedStim = jumpedStim[0].getBoundingClientRect(); // element to save the jumped dot position
+        } else {
+          jumpedStim = sideStim; // if the 'jumped stim' class is empty, the jumped stimulus was the same as the side stimulus
+        }
   
   
         // boolean checks
@@ -208,7 +213,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
         // EVENT LISTENERS
         // record all touches across the document
-        document.addEventListener(/*'mousedown'*/'touchstart', function (e) {
+        document.addEventListener(/*'touchstart'*/'mousedown', function (e) {
           // save xy coordinates to the xyCrossScreen variable
           xyCrossScreen.touchX = e.pageX;
           xyCrossScreen.touchY = e.pageY;
@@ -216,13 +221,13 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             // if that didn't work, we might be on a different browser. Instead, we try:
             xyCrossScreen.touchX = e.changedTouches[0].screenX;
             xyCrossScreen.touchY = e.changedTouches[0].screenY;
-          };
+          }
           // save all touches in our array
           allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
         })
   
         // FUNCTIONS
-        show_new = function () {
+        let show_new = function () {
           // hide the central dot
           document.getElementById('button-central').style.visibility = 'hidden';
           document.getElementById('stimulus-central').style.visibility = 'hidden';
@@ -235,13 +240,13 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           endTO = setTimeout(end_trial, trial_dur);
           //start rt timer
           rtTime = jsPsych.totalTime();
-          // set timestampe
+          // set timestamp
           goSignalTime = jsPsych.totalTime();
           // confirm that a go signal was shown
           goSignal = true;
         };
   
-        hide_flash = function () {
+        let hide_flash = function () {
           // show flash
           document.getElementById('flash-up').style.visibility = 'hidden';
           document.getElementById('flash-down').style.visibility = 'hidden';
@@ -249,7 +254,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           flashOffTime = jsPsych.totalTime();
         };
   
-        show_flash = function () {
+        let show_flash = function () {
           // show flash
           document.getElementById('flash-up').style.visibility = 'visible';
           document.getElementById('flash-down').style.visibility = 'visible';
@@ -276,10 +281,10 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             // if that didn't work, try a different version
             xyCoords.centralX = e.changedTouches[0].screenX;
             xyCoords.centralY = e.changedTouches[0].screenY;
-          };
+          }
           // measure how long the person waited before a response
           waitTime = startTime - initTime;
-        };
+        }
   
         function onCentralLift(e) {
           // handles lift events from the central button
@@ -289,7 +294,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           if (earlyResponse) {
              // end the trial early after an early response
              after_response();
-          };
+          }
           // determine rt
           rtTime = goTime - rtTime;
           // start movement time timer
@@ -312,12 +317,12 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             // or try a different version
             xyCoords.sideX = e.changedTouches[0].screenX;
             xyCoords.sideY = e.changedTouches[0].screenY;
-          };
+          }
           // set late response to false
           lateResponse = false;
           // call after response
           after_response();
-        };
+        }
   
   
         // function to handle responses by the subject
@@ -336,7 +341,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             // wait 100 ms before we actually end it
             endRespTO = setTimeout(end_trial, 100);
           }
-        };
+        }
 
   
         // function to end trial when it is time
@@ -370,7 +375,6 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             "flashOnTime": flashOnTime, // when the flash appeared
             "flashOffTime": flashOffTime, // when the flash disappeared
             "waitTime": waitTime, // how long the participant waited till they pressed the first button
-            "tDur": tDur, // trial length (duration)
   
             // check values
             "earlyResponse": earlyResponse,
@@ -389,18 +393,18 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
             "jumpedY": jumpedStim.y,
             "docTouches": allTouches,
           };
-  
+
           // clear the display
           display_element.innerHTML = '';
   
           // move on to the next trial
           setTimeout(jsPsych.finishTrial(trial_data), waitAfter);
-        };
+        }
   
         // add event listeners to buttons
-        display_element.querySelector('#button-central').addEventListener(/*'mousedown'*/'touchstart', onCentralTouch);
-        display_element.querySelector('#button-central').addEventListener(/*'mouseup'*/'touchend', onCentralLift);
-        display_element.querySelector('#button-side').addEventListener(/*'mousedown'*/'touchstart', onSideTouch);
+        display_element.querySelector('#button-central').addEventListener(/*'touchstart'*/'mousedown', onCentralTouch);
+        display_element.querySelector('#button-central').addEventListener(/*'touchend'*/'mouseup', onCentralLift);
+        display_element.querySelector('#button-side').addEventListener(/*'touchstart'*/'mousedown', onSideTouch);
   
         // add an error event listener
         window.onerror = function (msg, url, lineNo, columnNo, error) {

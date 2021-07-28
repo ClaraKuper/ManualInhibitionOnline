@@ -213,7 +213,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
         // EVENT LISTENERS
         // record all touches across the document
-        document.addEventListener(/*'touchstart'*/'mousedown', function (e) {
+        document.addEventListener(/*'mousedown'*/'touchstart', function (e) {
           // save xy coordinates to the xyCrossScreen variable
           xyCrossScreen.touchX = e.pageX;
           xyCrossScreen.touchY = e.pageY;
@@ -402,9 +402,9 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         }
   
         // add event listeners to buttons
-        display_element.querySelector('#button-central').addEventListener(/*'touchstart'*/'mousedown', onCentralTouch);
-        display_element.querySelector('#button-central').addEventListener(/*'touchend'*/'mouseup', onCentralLift);
-        display_element.querySelector('#button-side').addEventListener(/*'touchstart'*/'mousedown', onSideTouch);
+        display_element.querySelector('#button-central').addEventListener(/*'mousedown'*/'touchstart', onCentralTouch);
+        display_element.querySelector('#button-central').addEventListener(/*'mouseup'*/'touchend', onCentralLift);
+        display_element.querySelector('#button-side').addEventListener(/*'mousedown'*/'touchstart', onSideTouch);
   
         // add an error event listener
         window.onerror = function (msg, url, lineNo, columnNo, error) {

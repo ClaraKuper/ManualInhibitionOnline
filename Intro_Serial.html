@@ -45,15 +45,22 @@
 
   // define one trial in which no flash is displayed, with 10 sec time to respond
   let noflash_serial = {
-    type: 'manual-inhibition-serial',
-    buttonsVisible: visibleButtons,
-    buttonsInvisible: invisibleButtons,
-    flashUp: '',
-    flashDown: '',
-    flashDuration: 0,
-    flashTime: 0,
-    trialDuration: 10000,
-    waitAfter: 500,
+    type: 'manual-inhibition-serial', // calls the custom plugin
+    buttonVisible: genericPoint, // the visible buttons are an array of dots
+    buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
+    buttonPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonPositionY: [-2, -10, 21, -13, -5, 19],
+    buttonJumpPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonJumpPositionY: [-2, -10, 21, -13, -5, 19],
+    flashUp: '', // the upper flash is either visible or invisible
+    flashDown: '', // the lower flash is either visible or invisible
+    flashTime: 3000, // the time when the flash appears between 0 ms and the trial duration
+    flashShown: 0,
+    arrayJump: 0,
+    flashDuration: 0, // the time the flash is visible in ms
+    trialDuration: 5000, // the trial duration after the first point was touched
+    waitAfter: 500, // how long to wait after the trial ended
+
     data:{
       test_part: 'serial_test_noflash',
     },
@@ -79,17 +86,23 @@
 
   // show two trial with a flash, 5 seconds to answer, feedback will be provided
   let flash_serial = {
-    type: 'manual-inhibition-serial',
-    buttonsVisible: visibleButtons,
-    buttonsInvisible: invisibleButtons,
-    flashUp: flashUpVisible,
-    flashDown: flashDownVisible,
-    flashDuration: 50,
-    flashTime: 400,
-    trialDuration: 5000,
-    waitAfter: 500,
+    type: 'manual-inhibition-serial', // calls the custom plugin
+    buttonVisible: genericPoint, // the visible buttons are an array of dots
+    buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
+    buttonPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonPositionY: [-2, -10, 21, -13, -5, 19],
+    buttonJumpPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonJumpPositionY: [-2, -10, 21, -13, -5, 19],
+    flashUp: flashUpVisible, // the upper flash is either visible or invisible
+    flashDown: flashDownVisible, // the lower flash is either visible or invisible
+    flashTime: 1000, // the time when the flash appears between 0 ms and the trial duration
+    flashShown: 1,
+    arrayJump: 0,
+    flashDuration: 0, // the time the flash is visible in ms
+    trialDuration: 3000, // the trial duration after the first point was touched
+    waitAfter: 500, // how long to wait after the trial ended
     data:{
-      test_part: 'serial_test_noflash',
+      test_part: 'serial_test_flash',
     },
     on_finish:  function(data){
       orderResponse = data.orderResponse;
@@ -121,12 +134,63 @@
   // define the test procedure
   let test_procedure = {
     timeline: [flash_serial, feedback],
-    repetitions: 2,
+    repetitions: 1,
   };
   timeline.push(test_procedure);
 
-  // add more instructions to the experiment
+
+  // give more information on the trial
   let instructions_serial3 = {
+    type: 'instructions',
+    pages: ['<p>Good job. </p>' +
+      '<p>Finally, it might happen that the array suddenly changes configuration.</p>' +
+      '<p>If that happens, try to correct your movement in flight to give an accurate response withou slowing down.</p>' +
+      '<p>&nbsp;</p>'+
+      '<p>Let us try this.</p>'],
+    show_clickable_nav: true,
+    button_label_next: 'Ok. Continue >',
+    post_trial_gap: 500,
+    data: {
+      test_part: 'serial_instructions3',
+    },
+  };
+  timeline.push(instructions_serial3);
+
+  // show two trial with a flash and jump, 3 seconds to answer, feedback will be provided
+  let flash_serial_jump = {
+    type: 'manual-inhibition-serial', // calls the custom plugin
+    buttonVisible: genericPoint, // the visible buttons are an array of dots
+    buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
+    buttonPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonPositionY: [-2, -10, 21, -13, -5, 19],
+    buttonJumpPositionX: [-193, -131, -43, 31, 120, 187],
+    buttonJumpPositionY: [-12, 7, 9, -3, 15, -19],
+    flashUp: flashUpVisible, // the upper flash is either visible or invisible
+    flashDown: flashDownVisible, // the lower flash is either visible or invisible
+    flashTime: 1000, // the time when the flash appears between 0 ms and the trial duration
+    flashShown: 1,
+    arrayJump: 0,
+    flashDuration: 0, // the time the flash is visible in ms
+    trialDuration: 3000, // the trial duration after the first point was touched
+    waitAfter: 500, // how long to wait after the trial ended
+    data:{
+      test_part: 'serial_test_flash_jump',
+    },
+    on_finish:  function(data){
+      orderResponse = data.orderResponse;
+      lateResponse = data.lateResponse;
+    },
+  };
+
+  // define the test procedure
+  let test_procedure_jump = {
+    timeline: [flash_serial_jump, feedback],
+    repetitions: 1,
+  };
+  timeline.push(test_procedure_jump);
+
+  // add more instructions to the experiment
+  let instructions_serial4 = {
     type: 'instructions',
     pages: ['<p>Great. Try to be as fast as possible in this part of the experiment, while collecting all dots in order. ' +
       'You can collect them forwards or backwards. If you collect them out of order, a warning will be displayed as a reminder. </p>' +
@@ -139,7 +203,7 @@
       test_part: 'serial_instructions',
     }
   };
-  timeline.push(instructions_serial3);
+  timeline.push(instructions_serial4);
 
   // define a timeline that is only executed when the allowed waiting time was not exceeded
   let conditional_timeline = {

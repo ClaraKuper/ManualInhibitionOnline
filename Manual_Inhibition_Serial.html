@@ -17,10 +17,10 @@
   <script type= "text/javascript" src="loops.js"></script>
   <script src="common_vars.js"></script>
   <!-- jatos import -->
-  <!--script src="jatos.js"></script -->
+  <script src="jatos.js"></script>
   <!-- css import -->
   <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
-    <!-- use the line bleo to prevent user scaling and marking -->
+    <!-- use the line below to prevent user scaling and marking -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
@@ -32,22 +32,24 @@
 
       // define parameter values for the experiment
       // ALERT! Parameters were changed for testing
-      let nTrials = 2; // number of trials per condition
-      let trialDuration = 3000; //  1500 duration of the trial
+      let nTrials = 1; // number of trials per condition
+      let trialDuration = 2000; //  1500 duration of the trial
+      let cFlash = [0,1]; // the flash conditions
+      let cJump = [0,1]; // the jump conditions
       // for this design, we will create n even time windows between 0 up to the duration of the experiment.
       // we will sample nTrials random trials in each of these time windows.
       // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
       // and avoids clusters appearing by chance.
-      let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
+      let maxFlashTime = 1500; // maximum time after which a flash is shown in ms
       let twSize = 1000; // 100 the size of the time windows
       let flashDuration = 30; // how long the flash will be on the screen in ms
       let waitAfter = 500; // how long we will wait at the end of the trial in ms
-      let xPositions = [-200, -120, -40, 40, 120, 200]; // the mean X position of the dots
+      let xPositions = [-250, -150, -50, 50, 150, 250]; // the mean X position of the dots
       let yPositions = [0,0,0,0,0,0];  // the mean Y position of the dots
       let positionJitter = 20; // the max random jitter of the dots in both directions
 
       // load the trial structure
-      let timelineVariables = Serial_loop(nTrials, maxFlashTime, twSize, xPositions, yPositions, positionJitter);
+      let timelineVariables = Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, xPositions, yPositions, positionJitter);
 
       // ask for fullscreen permission
       let confirm_fullscreen = {
@@ -68,9 +70,13 @@
         buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
         buttonPositionX: jsPsych.timelineVariable('targetPosX'),
         buttonPositionY: jsPsych.timelineVariable('targetPosY'),
-        flashUp: flashUpVisible, // the upper part of the white flash
-        flashDown:flashDownVisible, // the lower part of the white flash
+        buttonJumpPositionX: jsPsych.timelineVariable('newTargetPosX'),
+        buttonJumpPositionY: jsPsych.timelineVariable('newTargetPosY'),
+        flashUp: jsPsych.timelineVariable('flashUp'), // the upper flash is either visible or invisible
+        flashDown: jsPsych.timelineVariable('flashDown'), // the lower flash is either visible or invisible
         flashTime: jsPsych.timelineVariable('flashTime'), // the time when the flash appears between 0 ms and the trial duration
+        flashShown: jsPsych.timelineVariable('flashShown'),
+        arrayJump: jsPsych.timelineVariable('arrayJump'),
         flashDuration: flashDuration, // the time the flash is visible in ms
         trialDuration: trialDuration, // the trial duration after the first point was touched
         waitAfter: waitAfter, // how long to wait after the trial ended
@@ -80,9 +86,9 @@
           // get the id of the current trial
           let id_here = jsPsych.timelineVariable('trialID', true);
           // check if we are past time
-          //if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
-          //  repeat = false
-          //} else
+          if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+            repeat = false
+          } else
           if (repeat_trials.length > 0) {
             // run the trial if the value is inside the array
             repeat = repeat_trials.includes(id_here);
@@ -106,10 +112,9 @@
           orderResponse = data.orderResponse; // were the answers given in order
           lateResponse = data.lateResponse; // was the response fast enough
           // monitor the time till the first button was pressed
-          //if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
-          //  jatos.studySessionData.totalWaitTime += data.waitTime;
-          // }
-
+          if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
+            jatos.studySessionData.totalWaitTime += data.waitTime;
+          }
           // if out of order or late response, create new T object and push it to repeat_IDs
           if (data.trialShown) {
             // evaluate only for trials that were shown
@@ -172,17 +177,17 @@
     // define a timeline that is only executed when the allowed waiting time was not exceeded
     conditional_timeline = {
       timeline: timeline,
-      //conditional_function: function(){
-        //return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
-      //},
+      conditional_function: function(){
+        return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+      },
     };
 
     /* start the experiment */
     // load jatos - I can use jatos functions after this line
-    //jatos.onLoad(function () {
+    jatos.onLoad(function () {
 
       jsPsych.data.addProperties({
-        //subject: jatos.workerId, // id of the subject
+        subject: jatos.workerId, // id of the subject
         screenWidth: screen.width, // screen Width in px
         screenHeight: screen.height, // screen Height in px
         userInfo: navigator.userAgent, // some information about the user device
@@ -199,10 +204,10 @@
           on_finish: function() {
             // once the code has run: save the results and call the next jatos component
             let resultJson = jsPsych.data.get().json();
-            //jatos.submitResultData(resultJson, jatos.startNextComponent);
+            jatos.submitResultData(resultJson, jatos.startNextComponent);
           }
       });
-  //});
+  });
     </script>
   </body>
 </html>

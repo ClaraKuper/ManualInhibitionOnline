@@ -49,6 +49,20 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 array: true,
                 description: 'The position of targets along the y axis.'
             },
+            buttonJumpPositionX: {
+                type: jsPsych.plugins.parameterType.INT,
+                pretty_name: 'button-jumped-positions-y',
+                default: [-200, -120, -40, 40, 120, 200],
+                array: true,
+                description: 'The jumped position of targets along the x axis.'
+            },
+            buttonJumpPositionY: {
+                type: jsPsych.plugins.parameterType.INT,
+                pretty_name: 'button-jumped-positions-x',
+                default: [-0, -0, -0, 0, 0, 0],
+                array: true,
+                description: 'The jumped position of targets along the y axis.'
+            },
             flashUp: {
                 type: jsPsych.plugins.parameterType.HTML_STRING,
                 pretty_name: 'Flash Up',
@@ -87,6 +101,18 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 description: 'How long to wait at the end of the trial.'
             },
             // boolean parameters
+            flashShown: {
+                type: jsPsych.plugins.parameterType.BOOL,
+                pretty_name: 'flash visible',
+                default: true,
+                description: 'Defines if the flash appears or not.'
+            },
+            arrayJump: {
+                type: jsPsych.plugins.parameterType.BOOL,
+                pretty_name: 'array jumps',
+                default: true,
+                description: 'Defines if the array jumps or not.'
+            },
             runTrial: {
                 type: jsPsych.plugins.parameterType.BOOL,
                 pretty_name: 'Trial runs',
@@ -110,6 +136,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
 
             let posX = trial.buttonPositionX;
             let posY = trial.buttonPositionY;
+            let posXNew = trial.buttonJumpPositionX;
+            let posYNew = trial.buttonJumpPositionY;
   
             // HTML ELEMENTS
             // initialize html
@@ -227,6 +255,11 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 flashOnTime = jsPsych.totalTime();
                 // set a timeout to hide the flash again
                 hideTO = setTimeout(hideFlash, flashDur);
+
+                for (let i = 0; i < posX.length; i++) {
+                    document.getElementById('visible-button-' + i).getElementsByClassName('target')[0].style.transform = 'translate('+posXNew[i]+'px,'+posYNew[i]+'px)';
+                    document.getElementById('invisible-button-' + i).getElementsByClassName('invisibleTarget')[0].style.transform = 'translate('+posXNew[i]+'px,'+posYNew[i]+'px)';
+                }
             };
   
             let getTargetXY = function (e) {
@@ -365,8 +398,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             // note: we only listen on invisible buttons. the visible buttons are only a guidance for the user
             // and the invisible buttons are actually larger
             for (let i = 0; i < posX.length; i++) {
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'touchstart'*/'mousedown', onTouch)
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'touchend'*/'mouseup', onRelease)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mousedown'*/'touchstart', onTouch)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mouseup'*/'touchend', onRelease)
             }
   
             // add an error event listener

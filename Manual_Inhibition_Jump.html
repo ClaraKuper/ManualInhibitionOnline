@@ -17,7 +17,7 @@
     <script type= "text/javascript" src="loops.js"></script>
     <script src="common_vars.js"></script>
     <!-- jatos import -->
-    <!-- script src="jatos.js"></script -->
+    <script src="jatos.js"></script>
     <!-- css import -->
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css">
     <!-- meta prevents zooming in -->
@@ -32,16 +32,15 @@
         // salute the hacker
         console.log("Welcome to the show!"); 
 
-        // ALERT! PARAMETERS WERE CHANGED FOR TESTING
         // define parameter values for the experiment:
-        let nTrials = 10; // the number of trials
+        let nTrials = 1; // the number of trials
         let cFlash = [0,1]; // the flash conditions
         let cJump = [0,1]; // the jump conditions
         let cInwards = [0,1]; // inward/not condition
         let cPosition = ['l', 'r']; // the position condition
         let fixTime = 1000; // how long the central point is maximally touched before the trial starts
         // longer delay than in uploaded version
-        let flashTime = 350; //250; // the longest time till the flash occurs after trial start
+        let flashTime = 250; //250; // the longest time till the flash occurs after trial start
         let trialDur = 500; // the duration of the experiment (without fixation time)
         let waitAfter = 500; // time to wait after each trial
         let flashDur = 30; // how long to display the flash in ms
@@ -82,9 +81,9 @@
                 // get the ID of the current trial
                 let id_here = jsPsych.timelineVariable('trialID', true);
                 // check if we are past time
-                /* if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
                   repeat = false
-                } else */
+                } else
                 if (repeat_trials.length > 0) {
                   // run the trial if the value is inside the array
                   repeat = repeat_trials.includes(id_here);
@@ -118,11 +117,9 @@
                 repeat = data.trialShown;
 
                 // motinor the wait times before the first button press
-                /*
                 if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
                     jatos.studySessionData.totalWaitTime += data.waitTime;
-                }*/
-
+                }
                 // if the response was early or late and the trial was presented in the first place,
                 // save the ID of the trial
                 if (data.trialShown){
@@ -182,17 +179,16 @@
         conditional_timeline = {
             timeline: timeline,
             conditional_function: function(){
-                //return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
-                return true;
+                return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
             },
 
         }
 
         /* start the experiment */
         // load jatos - I can use jatos functions after this line
-        //jatos.onLoad(function () {
+        jatos.onLoad(function () {
             jsPsych.data.addProperties({
-                //subject: jatos.workerId, // id of the subject
+                subject: jatos.workerId, // id of the subject
                 screenWidth: screen.width, // screen Width in px
                 screenHeight: screen.height, // screen Height in px
                 userInfo: navigator.userAgent, // some information about the user device
@@ -209,10 +205,10 @@
                 on_finish: function() {
                     // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();
-                    //jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    jatos.submitResultData(resultJson, jatos.startNextComponent);
                 },
             });
-        //});
+        });
     </script>
 </body>
 

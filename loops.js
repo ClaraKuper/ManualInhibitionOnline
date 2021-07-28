@@ -64,44 +64,63 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
     return test_stimuli;}
 
 
-function Serial_loop(nTrials, maxFlashTime, twSize, PosX, PosY, randomPosShift) {
+function Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, PosX, PosY, randomPosShift) {
+
     let T; // the trials
     let nT; // number of trials per condition
+    let cF; // flash or no flash
+    let cJ; // jump or no jump
     let tW; // the time window
     let tP; // the target position
     let ID = 0; // a trial ID
     let targetPosX; // the array with target positions in every trial
     let targetPosY; // the array with target positions in every trial
-
+    let newTargetPosX; // the array with after jump target positions in every trial
+    let newTargetPosY; // the array with after jump target positions in every trial
 
     let test_stimuli = []; // the array that will later hold our design structure
 
     // loop through all trials
-    for (nT = 0; nT < nTrials; nT++){
-      // loop through all time windows
-      for (tW = 0; tW < maxFlashTime; tW = tW+twSize){
-          targetPosX = []; // set the target positions to 0
-          for (tP = 0; tP < PosX.length; tP++) {
-           targetPosX.push((Math.random() * 2 - 1) * randomPosShift + PosX[tP]);
-          }
-          targetPosY = []; // set the target positions to 0
-          for (tP = 0; tP < PosY.length; tP++) {
-           targetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
-          }
-        // save the values for the current trial
-        T = {
-          // the time of the flash will be the time window start + a random value between 0
-          // and the size of the time window
-          flashTime: tW + Math.random()*twSize,
-          trialID: ID,
-          targetPosX: targetPosX,
-          targetPosY: targetPosY,
-        };
-        // save the trial in our design structure
-        test_stimuli.push(T);
-        // increment the trial ID
-        ID++
-      }
+    for (nT = 0; nT < nTrials; nT++) {
+        for (cF = 0; cF < cFlash.length; cF++) {
+            for (cJ = 0; cJ < cJump.length; cJ++) {
+                // loop through all time windows
+                for (tW = 0; tW < maxFlashTime; tW = tW + twSize) {
+                    targetPosX = []; // set the target positions to 0
+                    newTargetPosX = []; // set the new target position array to empty
+                    for (tP = 0; tP < PosX.length; tP++) {
+                        targetPosX.push((Math.random() * 2 - 1) * randomPosShift + PosX[tP]);
+                        newTargetPosX.push((Math.random() * 2 - 1) * randomPosShift + PosX[tP]);
+                    }
+                    targetPosY = []; // set the target positions to 0
+                    newTargetPosY = []; // set the new target position array to empty
+                    for (tP = 0; tP < PosY.length; tP++) {
+                        targetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
+                        newTargetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
+
+                        // save the values for the current trial
+                        T = {
+                            // the time of the flash will be the time window start + a random value between 0
+                            // and the size of the time window
+                            flashTime: tW + Math.random() * twSize,
+                            targetPosX: targetPosX,
+                            targetPosY: targetPosY,
+                            newTargetPosX: function(){if (cJump[cJ]){return newTargetPosX} else{return targetPosX}}(),
+                            newTargetPosY: function(){if (cJump[cJ]){return newTargetPosY} else{return targetPosY}}(),
+                            flashShown: cFlash[cF],
+                            arrayJumped: cJump[cJ],
+                            flashUp:function(){if (cFlash[cF]){return flashUpVisible} else{return flashUpInvisible}}(),
+                            flashDown: function(){if (cFlash[cF]){return flashDownVisible} else{return flashDownInvisible}}(),
+                            trialID: ID,
+                        };
+                        // save the trial in our design structure
+                        test_stimuli.push(T);
+                        // increment the trial ID
+                        ID++
+                    }
+                }
+            }
+        }
     }
 
     return test_stimuli;}

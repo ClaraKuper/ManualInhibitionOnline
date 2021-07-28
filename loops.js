@@ -1,5 +1,3 @@
-
-
 function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur) {
 
 
@@ -9,7 +7,6 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
     let cJ; // condition jump index
     let cI; // condition inwards index
     let cP; // condition position index
-    let fixT; // time for fixation
     let ID = 0; // trial ID initialization
 
     let flash_condition; // current flash condition
@@ -67,12 +64,15 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
     return test_stimuli;}
 
 
-function Serial_loop(nTrials, maxFlashTime, twSize) {
+function Serial_loop(nTrials, maxFlashTime, twSize, PosX, PosY, randomPosShift) {
     let T; // the trials
     let nT; // number of trials per condition
     let tW; // the time window
-    let fT; // flash time
+    let tP; // the target position
     let ID = 0; // a trial ID
+    let targetPosX; // the array with target positions in every trial
+    let targetPosY; // the array with target positions in every trial
+
 
     let test_stimuli = []; // the array that will later hold our design structure
 
@@ -80,12 +80,22 @@ function Serial_loop(nTrials, maxFlashTime, twSize) {
     for (nT = 0; nT < nTrials; nT++){
       // loop through all time windows
       for (tW = 0; tW < maxFlashTime; tW = tW+twSize){
+          targetPosX = []; // set the target positions to 0
+          for (tP = 0; tP < PosX.length; tP++) {
+           targetPosX.push((Math.random() * 2 - 1) * randomPosShift + PosX[tP]);
+          }
+          targetPosY = []; // set the target positions to 0
+          for (tP = 0; tP < PosY.length; tP++) {
+           targetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
+          }
         // save the values for the current trial
         T = {
           // the time of the flash will be the time window start + a random value between 0
           // and the size of the time window
           flashTime: tW + Math.random()*twSize,
           trialID: ID,
+          targetPosX: targetPosX,
+          targetPosY: targetPosY,
         };
         // save the trial in our design structure
         test_stimuli.push(T);

@@ -21,19 +21,33 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
         description: '',
         parameters: {
             // screen element parameters
-            buttonsVisible: {
+            buttonVisible: {
                 type: jsPsych.plugins.parameterType.HTML_STRING,
                 pretty_name: 'visible-buttons',
                 default: undefined,
                 array: true,
                 description: 'The dots that show on the screen.'
             },
-            buttonsInvisible: {
+            buttonInvisible: {
                 type: jsPsych.plugins.parameterType.HTML_STRING,
                 pretty_name: 'invisible-buttons',
                 default: undefined,
                 array: true,
                 description: 'The invisible buttons in the forground.'
+            },
+            buttonPositionX:{
+                type: jsPsych.plugins.parameterType.INT,
+                pretty_name: 'button-positions-x',
+                default: [-200, -120, -40, 40, 120, 200],
+                array: true,
+                description: 'The position of targets along the x axis.'
+            },
+            buttonPositionY:{
+                type: jsPsych.plugins.parameterType.INT,
+                pretty_name: 'button-positions-y',
+                default: [-0, -0, -0, 0, 0, 0],
+                array: true,
+                description: 'The position of targets along the y axis.'
             },
             flashUp: {
                 type: jsPsych.plugins.parameterType.HTML_STRING,
@@ -93,19 +107,23 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             let flashTime = trial.flashTime;
             let trialDur = trial.trialDuration;
             let waitAfter = trial.waitAfter;
+
+            let posX = trial.buttonPositionX;
+            let posY = trial.buttonPositionY;
   
             // HTML ELEMENTS
             // initialize html
             let html = '';
   
             // display visible buttons
-            for (var i = 0; i < trial.buttonsVisible.length; i++) {
-                html += '<div id="visible-button-' + i + '" data-choice="' + i + '">' + trial.buttonsVisible[i] + '</div>';
+            for (var i = 0; i < posX.length; i++) {
+                html += '<div id="visible-button-' + i + '" data-choice="' + i + '">' + trial.buttonVisible + '</div>';
             }
-  
+
+
             // display invisible buttons
-            for (var i = 0; i < trial.buttonsInvisible.length; i++) {
-                html += '<div id="invisible-button-' + i + '" data-choice="' + i + '">' + trial.buttonsInvisible[i] + '</div>';
+            for (var i = 0; i < posX.length; i++) {
+                html += '<div id="invisible-button-' + i + '" data-choice="' + i + '">' + trial.buttonInvisible + '</div>';
             }
   
             // display flashes (invisible first)
@@ -114,6 +132,12 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
             // set the html element
             display_element.innerHTML = html;
+
+            // jitter position of visible buttons
+            for (var i = 0; i < posX.length; i++) {
+                document.getElementById('visible-button-' + i).getElementsByClassName('target')[0].style.transform = 'translate('+posX[i]+'px,'+posY[i]+'px)';
+                document.getElementById('invisible-button-' + i).getElementsByClassName('invisibleTarget')[0].style.transform = 'translate('+posX[i]+'px,'+posY[i]+'px)';
+            }
   
             // PARAMETERS
             // variables to track
@@ -151,10 +175,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             };
   
             // stim coordinates
-            let firstRect = document.getElementById('leftTarDiv').getBoundingClientRect(); // position of the first stimulus on screen
-
-            // added
-            console.log(firstRect);
+            let firstRect = document.getElementsByClassName('target')[0].getBoundingClientRect();
+            // console.log(firstRect);
             // boolean
             let orderResponse = true;
             let lateResponse = false;
@@ -246,7 +268,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 e.target.style.visibility = ('hidden');
                 touchOffTime = jsPsych.totalTime(); // saves the time of when a button is released
                 // check if this was the last button in the series
-                if (target_counter == trial.buttonsVisible.length) {
+                if (target_counter == posX.length) {
                     // save the time when the trial ended
                     endTime = touchOffTime;
                     // define the duration of the trial
@@ -269,7 +291,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
                 // check booleans
                 // check if all buttons were pressed at the time this is executed
-                lateResponse = target_counter < trial.buttonsVisible.length
+                lateResponse = target_counter < posX.length
                 // define a new array to check the difference between the choices
                 let newA = [];
                 // compute difference between every choice
@@ -318,7 +340,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
             // EVENT LISTENERS
             // record all touches across the document
-            document.addEventListener(/*'mousedown'*/'touchstart', function (e) {
+            document.addEventListener(/*'mousedown'*/'touchstart', function (e){
                 // change the xy coordinates
                 xyCrossScreen.touchX = e.pageX;
                 xyCrossScreen.touchY = e.pageY;
@@ -327,8 +349,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 if (xyCrossScreen.touchX == null) {
                     xyCrossScreen.touchX = e.changedTouches[0].pageX;
                     xyCrossScreen.touchY = e.changedTouches[0].pageY;
-                }
-                ;
+                };
                 // save the values
                 allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
             });
@@ -336,9 +357,9 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             // add event listeners to buttons
             // note: we only listen on invisible buttons. the visible buttons are only a guidance for the user
             // and the invisible buttons are actually larger
-            for (var i = 0; i < trial.buttonsInvisible.length; i++) {
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mousedown'*/'touchstart', onTouch)
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mouseup'*/'touchend', onRelease)
+            for (var i = 0; i < posX.length; i++) {
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'touchstart'*/'mousedown', onTouch)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'touchend'*/'mouseup', onRelease)
             };
   
             // add an error event listener

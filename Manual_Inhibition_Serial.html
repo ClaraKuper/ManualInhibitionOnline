@@ -32,18 +32,22 @@
 
       // define parameter values for the experiment
       // ALERT! Parameters were changed for testing
-      let nTrials = 10; // number of trials per condition
-      let trialDuration = 1500; //  1500 duration of the trial
+      let nTrials = 2; // number of trials per condition
+      let trialDuration = 3000; //  1500 duration of the trial
       // for this design, we will create n even time windows between 0 up to the duration of the experiment.
       // we will sample nTrials random trials in each of these time windows.
       // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
       // and avoids clusters appearing by chance.
       let maxFlashTime = trialDuration; // maximum time after which a flash is shown in ms
-      let twSize = 100; // 100 the size of the time windows
+      let twSize = 1000; // 100 the size of the time windows
       let flashDuration = 30; // how long the flash will be on the screen in ms
       let waitAfter = 500; // how long we will wait at the end of the trial in ms
+      let xPositions = [-200, -120, -40, 40, 120, 200]; // the mean X position of the dots
+      let yPositions = [0,0,0,0,0,0];  // the mean Y position of the dots
+      let positionJitter = 20; // the max random jitter of the dots in both directions
+
       // load the trial structure
-      let timelineVariables = Serial_loop(nTrials, maxFlashTime, twSize);
+      let timelineVariables = Serial_loop(nTrials, maxFlashTime, twSize, xPositions, yPositions, positionJitter);
 
       // ask for fullscreen permission
       let confirm_fullscreen = {
@@ -60,8 +64,10 @@
       // define the main trial for the experiment
       let trial = {
         type: 'manual-inhibition-serial', // calls the custom plugin
-        buttonsVisible: visibleButtons, // the visible buttons are an array of dots
-        buttonsInvisible: invisibleButtons, // the invisible buttons are an array of dots
+        buttonVisible: genericPoint, // the visible buttons are an array of dots
+        buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
+        buttonPositionX: jsPsych.timelineVariable('targetPosX'),
+        buttonPositionY: jsPsych.timelineVariable('targetPosY'),
         flashUp: flashUpVisible, // the upper part of the white flash
         flashDown:flashDownVisible, // the lower part of the white flash
         flashTime: jsPsych.timelineVariable('flashTime'), // the time when the flash appears between 0 ms and the trial duration

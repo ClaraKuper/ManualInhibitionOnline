@@ -33,7 +33,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 pretty_name: 'invisible-buttons',
                 default: undefined,
                 array: true,
-                description: 'The invisible buttons in the forground.'
+                description: 'The invisible buttons in the foreground.'
             },
             buttonPositionX:{
                 type: jsPsych.plugins.parameterType.INT,
@@ -113,20 +113,13 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 default: true,
                 description: 'Defines if the array jumps or not.'
             },
-            runTrial: {
-                type: jsPsych.plugins.parameterType.BOOL,
-                pretty_name: 'Trial runs',
-                default: true,
-                description: 'A function that evaluates to true if the trial should be run.'
-            },
       },
     };
   
     plugin.trial = function(display_element, trial) {
-  
+
         // check if we want to run this trial in the first place
-        if (trial.runTrial) {
-  
+        //if (trial.runTrial) {
             // copy some values from trial
             // this is not necessary, but helps to keep an overview
             let flashDur = trial.flashDuration;
@@ -138,19 +131,25 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             let posY = trial.buttonPositionY;
             let posXNew = trial.buttonJumpPositionX;
             let posYNew = trial.buttonJumpPositionY;
+
+            let nTargets= posX.length;
+
+            // set response modality
+            let responseOn = 'touchstart'; // 'mousedown'; //
+            let responseOff = 'touchend'; // 'mouseup'; //
   
             // HTML ELEMENTS
             // initialize html
             let html = '';
   
             // display visible buttons
-            for (let i = 0; i < posX.length; i++) {
+            for (let i = 0; i < nTargets; i++) {
                 html += '<div id="visible-button-' + i + '" data-choice="' + i + '">' + trial.buttonVisible + '</div>';
             }
 
-
             // display invisible buttons
-            for (let i = 0; i < posX.length; i++) {
+            for (let i = 0; i < nTargets; i++) {
+                //console.log(posX);
                 html += '<div id="invisible-button-' + i + '" data-choice="' + i + '">' + trial.buttonInvisible + '</div>';
             }
   
@@ -162,7 +161,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             display_element.innerHTML = html;
 
             // jitter position of visible buttons
-            for (let i = 0; i < posX.length; i++) {
+            for (let i = 0; i < nTargets; i++) {
                 document.getElementById('visible-button-' + i).getElementsByClassName('target')[0].style.transform = 'translate('+posX[i]+'px,'+posY[i]+'px)';
                 document.getElementById('invisible-button-' + i).getElementsByClassName('invisibleTarget')[0].style.transform = 'translate('+posX[i]+'px,'+posY[i]+'px)';
             }
@@ -191,8 +190,11 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             let choiceOrder = []; // the order in which all stimuli were pressed
             let allTouches = []; // all touches with timestamps registered across the screen
             let rectOnScreen = []; // value to store the rectangle information about 1 dot
+            let jumpRectOnScreen = []; // values to store information about jumped dots
             let xOnScreen = []; // the X coordinates of the stimuli on the screen
             let yOnScreen = []; // the Y coordinates of the stimuli on the screen
+            let xOnJump = []; // the X coordinates after jumps
+            let yOnJump = []; // the Y coordinates after jumps
   
             // set coordinate variables to monitor on button touch
             let xyCoords = {
@@ -207,7 +209,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             };
   
             // stim coordinates
-            for (let i = 0; i < posX.length; i++) {
+            for (let i = 0; i < nTargets; i++) {
                 rectOnScreen = document.getElementsByClassName('target')[i].getBoundingClientRect();
                 xOnScreen.push(rectOnScreen.x);
                 yOnScreen.push(rectOnScreen.y);
@@ -256,7 +258,8 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 // set a timeout to hide the flash again
                 hideTO = setTimeout(hideFlash, flashDur);
 
-                for (let i = 0; i < posX.length; i++) {
+                // set new targets
+                for (let i = 0; i < nTargets; i++) {
                     document.getElementById('visible-button-' + i).getElementsByClassName('target')[0].style.transform = 'translate('+posXNew[i]+'px,'+posYNew[i]+'px)';
                     document.getElementById('invisible-button-' + i).getElementsByClassName('invisibleTarget')[0].style.transform = 'translate('+posXNew[i]+'px,'+posYNew[i]+'px)';
                 }
@@ -305,10 +308,11 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 // execute this function when the invisible button is released
                 // hides the invisible
                 // this also prevents any additional actions on this item
-                e.target.style.visibility = ('hidden');
+                document.getElementById('invisible-button-' + choice).style.visibility = 'hidden';
+                //e.target.style.visibility = ('hidden');
                 touchOffTime = jsPsych.totalTime(); // saves the time of when a button is released
                 // check if this was the last button in the series
-                if (target_counter === posX.length) {
+                if (target_counter === nTargets) {
                     // save the time when the trial ended
                     endTime = touchOffTime;
                     // define the duration of the trial
@@ -328,10 +332,17 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 clearTimeout(flashTO);
                 clearTimeout(hideTO);
                 clearTimeout(endTO);
-  
+
+                // get the current position of the targets (after the jump)
+                for (let i = 0; i < nTargets; i++) {
+                    jumpRectOnScreen = document.getElementsByClassName('target')[i].getBoundingClientRect();
+                    xOnJump.push(jumpRectOnScreen.x);
+                    yOnJump.push(jumpRectOnScreen.y);
+                }
+
                 // check booleans
                 // check if all buttons were pressed at the time this is executed
-                lateResponse = target_counter < posX.length
+                lateResponse = target_counter < nTargets
                 // define a new array to check the difference between the choices
                 let newA = [];
                 // compute difference between every choice
@@ -340,7 +351,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 //let absA = [];
                 //for (let i = 1; i < newA.length; i++) absA.push(Math.abs(newA[i]));
                 // check if they are all one
-                orderResponse = newA.every((val, i, arr) => val === 1);
+                orderResponse = newA.every((val, i, arr) => val === -1);
   
                 // gather the data to store for the trial
                 let trial_data = {
@@ -359,8 +370,10 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                     "touchY": touchCoordsY, // Y coordinates of touches - array
                     "choiceOrder": choiceOrder, // the order in which all stimuli were pressed
                     "allTouches": allTouches, // all touches with timestamps registered across the screen
-                    "button0-x": xOnScreen, // the x positions of all dots
-                    "button0-y": yOnScreen, // the y positions of all dots
+                    "button-x": xOnScreen, // the x positions of all dots
+                    "button-y": yOnScreen, // the y positions of all dots
+                    "jump-x": xOnJump, // the x positions of all dots
+                    "jump-y": yOnJump, // the y positions of all dots
   
                     //booleans
                     "lateResponse": lateResponse, // if the response was on time
@@ -380,7 +393,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
             // EVENT LISTENERS
             // record all touches across the document
-            document.addEventListener(/*'mousedown'*/'touchstart', function (e){
+            document.addEventListener(responseOn, function (e){
                 // change the xy coordinates
                 xyCrossScreen.touchX = e.pageX;
                 xyCrossScreen.touchY = e.pageY;
@@ -397,9 +410,9 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
             // add event listeners to buttons
             // note: we only listen on invisible buttons. the visible buttons are only a guidance for the user
             // and the invisible buttons are actually larger
-            for (let i = 0; i < posX.length; i++) {
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mousedown'*/'touchstart', onTouch)
-                display_element.querySelector('#invisible-button-' + i).addEventListener(/*'mouseup'*/'touchend', onRelease)
+            for (let i = 0; i < nTargets; i++) {
+                display_element.querySelector('#invisible-button-' + i).addEventListener(responseOn, onTouch)
+                display_element.querySelector('#invisible-button-' + i).addEventListener(responseOff, onRelease)
             }
   
             // add an error event listener
@@ -407,17 +420,6 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
                 errors.push(msg);
                 return false;
             };
-  
-        } else{
-            // if we don't run ths trial, execute this minimal version
-            let trial_data = {
-                // data array that indicates that the trial didn't run
-                "trialShown": false, // marker that the trial was not shown
-                "waitTime": 0.1, // value to add onto the duration
-            };
-            // move on to the next trial immediately
-            jsPsych.finishTrial(trial_data);
-        }
     };
     return plugin;
   })();

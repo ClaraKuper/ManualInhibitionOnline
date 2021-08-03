@@ -1,6 +1,5 @@
 function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur) {
 
-
     let nT; // number of trials
     let T; // trial
     let cF; // condition flash index
@@ -16,52 +15,53 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
 
     let test_stimuli = []; // the design structure, stimulus values for each trial
 
-// loop through trials
-   for (nT = 0; nT < nTrials; nT++){
-    // loop through flash conditions
-    for (cF = 0; cF < cFlash.length; cF++){
-        flash_condition = cFlash[cF];
-        // loop through jump conditions
-        for (cJ = 0; cJ < cJump.length; cJ++){
-            jump_condition = cJump[cJ];
-            // loop through inwards conditions
-            for (cI = 0; cI < cInwards.length; cI++){
-                inwards_condition = cInwards[cI];
-                // loop though position conditions
-                for (cP = 0; cP < cPosition.length; cP++){
-                    position_condition = cPosition[cP];
-                    // assign all values to the current trial
-                    T = {
-                        sidePoint: function(){if (position_condition === 'r'){return rightTar} else{return leftTar}}(),
-                        jumpedPoint: function(){if (position_condition === 'r'){if(inwards_condition){return rightTarShiftIn
-                        } else {return rightTarShiftOut}
-                        } else {if(inwards_condition){return leftTarShiftIn
-                        } else {return leftTarShiftOut}
-                        }
-                        }(),
-                        sideButton: function(){if (position_condition === 'r'){return rightTarInvisible} else{return leftTarInvisible}}(),
-                        flashUp:function(){if (flash_condition){return flashUpVisible} else{return flashUpInvisible}}(),
-                        flashDown: function(){if (flash_condition){return flashDownVisible} else{return flashDownInvisible}}(),
-                        position: position_condition,
-                        stimJumps: jump_condition,
-                        inwards: inwards_condition,
-                        showFlash: flash_condition,
+    // loop through trials
+    for (nT = 0; nT < nTrials; nT++){
+       // loop through flash conditions
+        for (cF = 0; cF < cFlash.length; cF++){
+            flash_condition = cFlash[cF];
+            // loop through jump conditions
+            for (cJ = 0; cJ < cJump.length; cJ++){
+                jump_condition = cJump[cJ];
+                // loop through inwards conditions
+                for (cI = 0; cI < cInwards.length; cI++){
+                    inwards_condition = cInwards[cI];
+                    // loop though position conditions
+                    for (cP = 0; cP < cPosition.length; cP++){
+                        position_condition = cPosition[cP];
+                        // assign all values to the current trial
+                        T = {
+                            sidePoint: function(){if (position_condition === 'r'){return rightTar} else{return leftTar}}(),
+                            jumpedPoint: function(){if (position_condition === 'r'){if(inwards_condition){return rightTarShiftIn
+                            } else {return rightTarShiftOut}
+                            } else {if(inwards_condition){return leftTarShiftIn
+                            } else {return leftTarShiftOut}
+                            }
+                            }(),
+                            sideButton: function(){if (position_condition === 'r'){return rightTarInvisible} else{return leftTarInvisible}}(),
+                            flashUp:function(){if (flash_condition){return flashUpVisible} else{return flashUpInvisible}}(),
+                            flashDown: function(){if (flash_condition){return flashDownVisible} else{return flashDownInvisible}}(),
+                            position: position_condition,
+                            stimJumps: jump_condition,
+                            inwards: inwards_condition,
+                            showFlash: flash_condition,
 
-                        fixTime: fixTime*Math.random(),
-                        flashTime: flashTime*Math.random(),
-                        trialDuration: trialDur,
-                        trialID: ID,
-                    };
-                    // save the current trial in our design structure
-                    test_stimuli.push(T);
-                    // increase the ID by one
-                    ID++;
+                            fixTime: fixTime*Math.random(),
+                            flashTime: flashTime*Math.random(),
+                            trialDuration: trialDur,
+                            trialID: ID,
+                        };
+                        // save the current trial in our design structure
+                        test_stimuli.push(T);
+                        // increase the ID by one
+                        ID++;
+                    }
                 }
             }
         }
     }
+    return test_stimuli;
 }
-    return test_stimuli;}
 
 
 function Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, PosX, PosY, randomPosShift) {
@@ -97,30 +97,30 @@ function Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, PosX, PosY, r
                     for (tP = 0; tP < PosY.length; tP++) {
                         targetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
                         newTargetPosY.push((Math.random() * 2 - 1) * randomPosShift + PosY[tP]);
-
-                        // save the values for the current trial
-                        T = {
-                            // the time of the flash will be the time window start + a random value between 0
-                            // and the size of the time window
-                            flashTime: tW + Math.random() * twSize,
-                            targetPosX: targetPosX,
-                            targetPosY: targetPosY,
-                            newTargetPosX: function(){if (cJump[cJ]){return newTargetPosX} else{return targetPosX}}(),
-                            newTargetPosY: function(){if (cJump[cJ]){return newTargetPosY} else{return targetPosY}}(),
-                            flashShown: cFlash[cF],
-                            arrayJumped: cJump[cJ],
-                            flashUp:function(){if (cFlash[cF]){return flashUpVisible} else{return flashUpInvisible}}(),
-                            flashDown: function(){if (cFlash[cF]){return flashDownVisible} else{return flashDownInvisible}}(),
-                            trialID: ID,
-                        };
-                        // save the trial in our design structure
-                        test_stimuli.push(T);
-                        // increment the trial ID
-                        ID++
                     }
+
+                    // save the values for the current trial
+                    T = {
+                        // the time of the flash will be the time window start + a random value between 0
+                        // and the size of the time window
+                        flashTime: tW + Math.random() * twSize,
+                        targetPosX: targetPosX,
+                        targetPosY: targetPosY,
+                        newTargetPosX: function(){if (cJump[cJ]){return newTargetPosX} else{return targetPosX}}(),
+                        newTargetPosY: function(){if (cJump[cJ]){return newTargetPosY} else{return targetPosY}}(),
+                        flashShown: cFlash[cF],
+                        arrayJumped: cJump[cJ],
+                        flashUp:function(){if (cFlash[cF]){return flashUpVisible} else{return flashUpInvisible}}(),
+                        flashDown: function(){if (cFlash[cF]){return flashDownVisible} else{return flashDownInvisible}}(),
+                        trialID: ID,
+                    };
+                    // save the trial in our design structure
+                    test_stimuli.push(T);
+                    // increment the trial ID
+                    ID++
                 }
             }
         }
     }
-
-    return test_stimuli;}
+    return test_stimuli;
+}

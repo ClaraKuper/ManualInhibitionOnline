@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test repetition with jsPsych</title>
+  <script src="jspsych-6.0.4/jspsych.js"></script>
+  <script src="jspsych-6.0.4/plugins/jspsych-html-keyboard-response.js"></script>
+
+</head>
+<body>
+<script>
+let timeline_variables = [
+    {ID: 'trial 1'},
+    {ID: 'trial 2'},
+    {ID: 'trial 3'}
+  ];
+
+let repeat_IDs = []; // holds list of IDs to repeat on the next round
+
+let first_set = true; // whether or not this is the first presentation of trials
+
+let trial = {
+  type: 'html-keyboard-response',
+  stimulus: jsPsych.timelineVariable('ID'),
+    choices: jsPsych.ALL_KEYS,
+    trial_duration: 2000,
+    on_finish: function (data) {
+      if (data.response == null) {
+        if (!repeat_IDs.includes(jsPsych.timelineVariable('ID')())) {
+          repeat_IDs.push(jsPsych.timelineVariable('ID')());
+          console.log('added: ' + repeat_IDs);
+        }
+      } else {
+        repeat_IDs = repeat_IDs.filter(function(item) {
+          console.log('filtered:' + repeat_IDs);
+          return item !== jsPsych.timelineVariable('ID')();
+        });
+      }
+    }
+  }
+
+let feedback = {
+    type: 'html-keyboard-response',
+    stimulus: 'feedback',
+    trial_duration: 1000
+  }
+
+let trial_conditional = {
+    timeline: [trial, feedback],
+    timeline_variables: timeline_variables,
+    randomize_order: true,
+    conditional_function: function() {
+      if (first_set || repeat_IDs.includes(jsPsych.timelineVariable('ID')())) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+
+let my_experiment = {
+    timeline: [trial_conditional],
+    loop_function: function () {
+      first_set = false;
+      return repeat_IDs.length > 0;
+    }
+  }
+
+  jsPsych.init({
+    timeline: [my_experiment], // use the timeline to run the experiment
+    on_finish: function() {
+      // print something to the console
+      console.log('done');
+    }
+  });
+
+
+</script>
+
+</body>
+</html>

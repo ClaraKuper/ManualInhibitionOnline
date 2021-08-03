@@ -10,7 +10,7 @@
     <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
 
     <!-- custom scripts -->
-    <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-html-button-response-custom.js"></script>
     <script src="jspsych-6.0.4/plugins/custom-manual-inhibition-jump.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <script src="objects.js"></script>
@@ -33,20 +33,20 @@
         console.log("Welcome to the show!"); 
 
         // define parameter values for the experiment:
-        let nTrials = 1; // the number of trials
+        let nTrials = 12; //12 the number of trials
         let cFlash = [0,1]; // the flash conditions
         let cJump = [0,1]; // the jump conditions
         let cInwards = [0,1]; // inward/not condition
         let cPosition = ['l', 'r']; // the position condition
-        let fixTime = 1000; // how long the central point is maximally touched before the trial starts
+        let fixTime = 700; // how long the central point is maximally touched before the trial starts
         // longer delay than in uploaded version
         let flashTime = 250; //250; // the longest time till the flash occurs after trial start
         let trialDur = 500; // the duration of the experiment (without fixation time)
         let waitAfter = 500; // time to wait after each trial
-        let flashDur = 30; // how long to display the flash in ms
+        let flashDur = 50; // how long to display the flash in ms
 
         // call the function that sets up all our trials
-        let test_stimuli = Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur);
+        let timelineVariables = Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTime, trialDur);
 
         // let participants confirm that they want to switch to fullscreen
         let confirm_fullscreen = {
@@ -59,6 +59,19 @@
             },
         };
         timeline.push(confirm_fullscreen);
+
+        let id_load = {
+            type: 'html-button-response',
+            trialID: jsPsych.timelineVariable('trialID'),
+            stimulus: '',
+            post_trial_gap: 1,
+            choices: [''],
+            button_html: '',
+            trial_duration: 1,
+            data: {
+                test_part: 'loadID',
+            },
+        };
 
         // core trial structure
         let trial = {
@@ -76,14 +89,14 @@
             flashDuration: flashDur, // the flash is shown for 30 ms in each trial
             waitAfter: waitAfter, // the trial waits 500 ms before presenting feedback
 
-            runTrial: function() {
+            /*runTrial: function() {
                 // this function defines on each trial if it should run or not
                 // get the ID of the current trial
                 let id_here = jsPsych.timelineVariable('trialID', true);
                 // check if we are past time
-                if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
-                  repeat = false
-                } else
+                //if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+                //  repeat = false
+                //} else
                 if (repeat_trials.length > 0) {
                   // run the trial if the value is inside the array
                   repeat = repeat_trials.includes(id_here);
@@ -93,7 +106,7 @@
                   repeat = true;
                 }
                 return repeat;
-            },
+            },*/
 
             // save the data from the current trial
             data: {
@@ -116,7 +129,7 @@
                 // save a repetition value for the feedback trial
                 repeat = data.trialShown;
 
-                // motinor the wait times before the first button press
+                // monitor the wait times before the first button press
                 if (jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime){
                     jatos.studySessionData.totalWaitTime += data.waitTime;
                 }
@@ -131,9 +144,32 @@
             },
         };
 
+        let trial_conditional = {
+            timeline: [trial],
+            conditional_function: function(){
+            //TODO: Check the ID of the upcoming trial here
+            // in this function, we define if we want to run this trial or not
+            // get the id of the current trial
+            let id_here = jsPsych.currentTrial().trialID;
+            // check if we are past time
+            if (jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime){
+               repeat = false
+            } else
+            if (repeat_trials.length > 0) {
+                // run the trial if the value is inside the array
+                repeat = repeat_trials.includes(id_here);
+                // if there are any values in the repeat trial array
+            } else {
+                // this is the first round, we run every trial
+                repeat = true;
+            }
+            return repeat
+            },
+        };
+
         // feedback displayed after every trial
         let feedback = {
-            type: 'html-button-response-conditional',
+            type: 'html-button-response-custom',
             stimulus: function () {
                 // evaluate the last trial, and adjust the stimulus that will be returned
                 if (earlyResponse) {
@@ -148,16 +184,27 @@
             choices: [''], // don't display choices
             button_html: '', // don't display buttons
             trial_duration: 1500, // display the feedback for 1500 ms
-            runTrial: function(){return repeat}, // evaluate if the trial should run or not
+            //runTrial: function(){return repeat}, // evaluate if the trial should run or not
             data:{
                 test_part: 'feedback',
             },
         };
+
+        let feedback_conditional = {
+            timeline: [feedback],
+            conditional_function: function(){
+                if (repeat){
+                    return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+                } else {
+                    return false
+                }
+            }
+        };
         
         // define a training procedure
         let test_procedure = {
-            timeline: [trial, feedback], // one trial and one feedback will be repeated after each other
-            timeline_variables: test_stimuli, // our design structure provides the timeline variables
+            timeline: [id_load, trial_conditional, feedback_conditional], // one trial and one feedback will be repeated after each other
+            timeline_variables: timelineVariables, // our design structure provides the timeline variables
             repetitions: 1, // our design structure is repeated once
             randomize_order: true, // the order of trials is random
             // this function evaluates if we want to repeat the loop
@@ -176,7 +223,7 @@
         timeline.push(test_procedure);
 
         // define a timeline that is only executed when the allowed wait time is not exceeded
-        conditional_timeline = {
+        let conditional_timeline = {
             timeline: timeline,
             conditional_function: function(){
                 return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
@@ -201,7 +248,7 @@
             });
 
             jsPsych.init({
-                timeline: [conditional_timeline, pseudo_trial], // use the timeline to run the experiment
+                timeline: [conditional_timeline, pseudo_trial], // pseudo_trial use the timeline to run the experiment
                 on_finish: function() {
                     // once the code has run: save the results and call the next jatos component
                     let resultJson = jsPsych.data.get().json();

@@ -18,7 +18,8 @@ let flashUpInvisible = "<div id = 'flashUpInvisibleDiv'><rectangleUp class = 'fl
 let flashDownInvisible = "<div id = 'flashDownInvisibleDiv'><rectangleDown class = 'flashdownInvisible' style = 'background-color:rgba(255,255,255,0);'></rectangleDown></div>";
 
 let genericPoint = "<div id = 'genericPointDiv'><dot class = 'target'> </dot></div>";
-let genericInvisiblePoint = "<div id = 'genericInvisiblePointDiv'><dot class = 'invisibleTarget' style = 'background-color: rgba(153,31,35,0);'></dot></div>";
+let genericInvisiblePoint = "<div id = 'genericInvisiblePointDiv'><InvisibleDot class = 'invisibleTarget' style = 'background-color: rgba(153,31,35,0); " +
+    "height: 100px; width: 100px; margin-top: -50px; margin-left: -50px;'></InvisibleDot></div>";
 
 //let rightTarResp = "<div id = 'rightTarRespDiv'><dot style = 'background-color: rgba(0,0,0,0); transform: translate(200px);'></dot></div>";
 //let leftTarResp = "<div id = 'leftTarRespDiv'><dot style = 'background-color: rgba(0,0,0,0); transform: translate(-200px);'></dot></div>";

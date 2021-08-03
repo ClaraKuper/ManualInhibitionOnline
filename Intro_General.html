@@ -26,6 +26,7 @@
         // define some values to collect
         let welcome_timeline = [];
         let orientation;
+        let allowedWaitTime = 15 * 60 * 1000; // allowed wait time in min * sec/min * ms/sec
 
         // get screen orientation information
         if (typeof screen.orientation === 'undefined'){
@@ -89,7 +90,8 @@
         jatos.onLoad(function () {
 
             // track the timing across the experiment
-            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":60 * 10 * 1000};
+            // min waittime * sec/min * ms/sec
+            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":allowedWaitTime};
             jatos.setStudySessionData(studySessionData);
 
             jsPsych.data.addProperties({

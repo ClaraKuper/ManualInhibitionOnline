@@ -103,18 +103,18 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           default: true,
           description: 'If true, then trial will end when user responds.'
         },
-        runTrial: {
+        /*runTrial: {
           type: jsPsych.plugins.parameterType.BOOL,
           pretty_name: 'Trial runs',
           default: true,
           description: 'A function that evaluates to true if the trial should be run.'
-        },
+        },*/
       }
     };
   
     plugin.trial = function(display_element, trial) {
       // check if we want to run this trial
-      if (trial.runTrial){
+      //if (trial.runTrial){
   
         // copy some values from trial
         // this is not necessary, but helps to keep an overview
@@ -124,6 +124,10 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         let flash_dur = trial.flashDuration;
         let response_ends_trial = trial.response_ends_trial;
         let waitAfter = trial.waitAfter;
+
+        // set response modality
+        let responseOn = 'touchstart'; //'mousedown'; //
+        let responseOff = 'touchend'; //'mouseup'; //
   
         // HTML ELEMENTS
         // make the html info
@@ -194,7 +198,6 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           jumpedStim = sideStim; // if the 'jumped stim' class is empty, the jumped stimulus was the same as the side stimulus
         }
   
-  
         // boolean checks
         let earlyResponse = false; // response before jump
         let lateResponse = true; // response after trial duration
@@ -213,7 +216,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
         // EVENT LISTENERS
         // record all touches across the document
-        document.addEventListener(/*'mousedown'*/'touchstart', function (e) {
+        document.addEventListener(responseOn, function (e) {
           // save xy coordinates to the xyCrossScreen variable
           xyCrossScreen.touchX = e.pageX;
           xyCrossScreen.touchY = e.pageY;
@@ -402,9 +405,9 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         }
   
         // add event listeners to buttons
-        display_element.querySelector('#button-central').addEventListener(/*'mousedown'*/'touchstart', onCentralTouch);
-        display_element.querySelector('#button-central').addEventListener(/*'mouseup'*/'touchend', onCentralLift);
-        display_element.querySelector('#button-side').addEventListener(/*'mousedown'*/'touchstart', onSideTouch);
+        display_element.querySelector('#button-central').addEventListener(responseOn, onCentralTouch);
+        display_element.querySelector('#button-central').addEventListener(responseOff, onCentralLift);
+        display_element.querySelector('#button-side').addEventListener(responseOn, onSideTouch);
   
         // add an error event listener
         window.onerror = function (msg, url, lineNo, columnNo, error) {
@@ -412,7 +415,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           return false;
         };
   
-      } else {
+     /* } else {
         // if we should not run the trial
         // save a minimal trial data version
         let trial_data = {
@@ -423,7 +426,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         // move on to the next trial
         jsPsych.finishTrial(trial_data);
   
-      }
+      }*/
   
     }
   

@@ -9,7 +9,7 @@
     <script src="jspsych-6.0.4/jspsych.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
-    <script src="jspsych-6.0.4/plugins/custom-html-button-response-conditional.js"></script>
+    <script src="jspsych-6.0.4/plugins/custom-html-button-response-custom.js"></script>
     <script src="jatos.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
@@ -57,12 +57,11 @@
         };
 
         let final_warning = {
-            type: "html-button-response-conditional",
+            type: "html-button-response-custom",
             stimulus: 'Please continue with the experiment.',
             post_trial_gap: 10,
             choices: ['end break'],
             trial_duration: 2 * 1000 * 60,
-            runTrial: function (){return time_out}, // executes only when there was no previous response
             on_finish: function(data){
                 if (data.button_pressed == null && time_out){
                     // set the duration of the experiment to timeout if this lasts too long
@@ -71,9 +70,17 @@
             }
         }
 
-        // define a conditional node to run this only when neccessary
+        let final_warning_conditional = {
+            timeline: [final_warning],
+            conditional_function: function(){
+                // the run/no-run condition depends on how much time participants have spent with the the trial.
+                return time_out;
+            },
+        }
+
+        // define a conditional node to run this only when necessary
         break_node = {
-            timeline: [breakmessage, final_warning],
+            timeline: [breakmessage, final_warning_conditional],
             conditional_function: function(){
                 // the run/no-run condition depends on how much time participants have spent with the the trial.
                 return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;

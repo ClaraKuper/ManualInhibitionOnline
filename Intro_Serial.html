@@ -89,16 +89,16 @@
     type: 'manual-inhibition-serial', // calls the custom plugin
     buttonVisible: genericPoint, // the visible buttons are an array of dots
     buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
-    buttonPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonPositionX: [233, 150, 51, -47, -122, -242],
     buttonPositionY: [-2, -10, 21, -13, -5, 19],
-    buttonJumpPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonJumpPositionX: [233, 150, 51, -47, -122, -242],
     buttonJumpPositionY: [-2, -10, 21, -13, -5, 19],
     flashUp: flashUpVisible, // the upper flash is either visible or invisible
     flashDown: flashDownVisible, // the lower flash is either visible or invisible
     flashTime: 1000, // the time when the flash appears between 0 ms and the trial duration
     flashShown: 1,
     arrayJump: 0,
-    flashDuration: 0, // the time the flash is visible in ms
+    flashDuration: 50, // the time the flash is visible in ms
     trialDuration: 3000, // the trial duration after the first point was touched
     waitAfter: 500, // how long to wait after the trial ended
     data:{
@@ -144,7 +144,7 @@
     type: 'instructions',
     pages: ['<p>Good job. </p>' +
       '<p>Finally, it might happen that the array suddenly changes configuration.</p>' +
-      '<p>If that happens, try to correct your movement in flight to give an accurate response withou slowing down.</p>' +
+      '<p>If that happens, try to correct your movement in flight to give an accurate response without slowing down.</p>' +
       '<p>&nbsp;</p>'+
       '<p>Let us try this.</p>'],
     show_clickable_nav: true,
@@ -161,16 +161,16 @@
     type: 'manual-inhibition-serial', // calls the custom plugin
     buttonVisible: genericPoint, // the visible buttons are an array of dots
     buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
-    buttonPositionX: [-213, -130, -31, 27, 102, 222],
+    buttonPositionX: [233, 150, 51, -47, -122, -242],
     buttonPositionY: [-2, -10, 21, -13, -5, 19],
-    buttonJumpPositionX: [-193, -131, -43, 31, 120, 187],
+    buttonJumpPositionX: [213, 151, 63, -51, -140, -207],
     buttonJumpPositionY: [-12, 7, 9, -3, 15, -19],
     flashUp: flashUpVisible, // the upper flash is either visible or invisible
     flashDown: flashDownVisible, // the lower flash is either visible or invisible
-    flashTime: 1000, // the time when the flash appears between 0 ms and the trial duration
+    flashTime: 500, // the time when the flash appears between 0 ms and the trial duration
     flashShown: 1,
     arrayJump: 0,
-    flashDuration: 0, // the time the flash is visible in ms
+    flashDuration: 50, // the time the flash is visible in ms
     trialDuration: 3000, // the trial duration after the first point was touched
     waitAfter: 500, // how long to wait after the trial ended
     data:{
@@ -193,7 +193,7 @@
   let instructions_serial4 = {
     type: 'instructions',
     pages: ['<p>Great. Try to be as fast as possible in this part of the experiment, while collecting all dots in order. ' +
-      'You can collect them forwards or backwards. If you collect them out of order, a warning will be displayed as a reminder. </p>' +
+      'If you collect them out of order, a warning will be displayed as a reminder. </p>' +
       '<p>We will start with a few training trials. </p>'],
     show_clickable_nav: true,
     button_label_next: 'Ok. Continue >',

@@ -4,6 +4,7 @@ let timeline = []; // timeline to run on jsPsych.init
 
 let repeat_IDs = []; // a list of all IDs that have to be repeated
 let repeat_trials = []; // gets assigned to repeat_IDs at the end of each run
+let first_set = true;
 let T; // initialize value for trial parameters
 
 // boolean checks

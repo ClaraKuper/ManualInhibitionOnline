@@ -5,13 +5,13 @@
 <head>
     <title>Final Questionaire</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
-    <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-survey-likert.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-survey-text.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.3.1/jspsych.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-survey-likert.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-survey-text.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
     <script src="jatos.js"></script>
-    <link rel="stylesheet" type="text/css" href="jspsych-6.0.4/css/jspsych.css">
+    <link rel="stylesheet" type="text/css" href="jspsych-6.3.1/css/jspsych.css">
     <style>
         p {
             font-size: 1em;
@@ -42,6 +42,7 @@
         let timeline = [];
         let scale = ["Concentrated", "Somewhat Concentrated", "Neutral", "Somewhat Distracted", "Distracted"];
         let finger_choice = ['thumb', 'index', 'other', 'multiple'];
+        let fullscreen_responses = ['yes', 'no']
 
         // check for concentration
         let focus = {
@@ -50,7 +51,13 @@
                 {prompt: "<p>You're Done! Please indicate how distracted or concentrated you felt during the experiment.</p>", name: 'control', labels: scale, required: true}
             ],
             choices: ['Submit answer'],
-            test_part: 'outro_concentration',
+            data: {
+                test_part: 'outro_concentration',
+            },
+            on_finish(data){
+                data['survey_response'] = scale[parseInt(data.responses[6])];
+            },
+
         };
         timeline.push(focus);
 
@@ -59,7 +66,13 @@
             type: 'html-button-response',
             stimulus: "<p>Which finger did you use to respond?</p>",
             choices: finger_choice,
-            test_part: 'outro_finger',
+            data: {
+                test_part: 'outro_finger',
+            },
+            on_finish(data){
+                data['survey_response'] = finger_choice[data.button_pressed];
+            },
+
         };
         timeline.push(finger);
 
@@ -67,8 +80,13 @@
         let screen = {
             type: 'html-button-response',
             stimulus: "<p>Did your screen switch to fullscreen mode during the main experiment?</p>",
-            choices: ['yes', 'no'],
-            test_part: 'outro_screen',
+            choices: fullscreen_responses,
+            data: {
+              test_part: 'outro_screen',
+            },
+            on_finish(data){
+                data['survey_response'] = fullscreen_responses[data.button_pressed];
+            },
         };
         timeline.push(screen);
 
@@ -79,7 +97,12 @@
                 {prompt: "Did you notice something during the experiment that you'd like to share?",
                 placeholder: "Type your answer here."},
             ],
-            test_part: 'outro_comments'
+            data: {
+                test_part: 'outro_comments'
+            },
+            on_finish(data){
+                data['survey_response'] = data.response['undefined'];
+            },
         };
         timeline.push(comments);
 
@@ -91,7 +114,10 @@
             choices: [''],
             button_html: [''],
             trial_duration: 1000,
-            test_part: 'outro_bye',
+            data: {
+                test_part: 'outro_bye',
+            },
+
         };
         timeline.push(debrief_block);
 
@@ -108,7 +134,10 @@
                 " the number of trials you have completed. You can close this window now.</p>",
             choices: [''],
             button_html: [''],
-            test_part: 'outro_bye',
+            data: {
+                test_part: 'outro_bye',
+            },
+
         };
 
         // set up a seperate node when the trial failed
@@ -125,11 +154,6 @@
                 subject: jatos.workerId,
                 screenWidth: screen.width,
                 screenHeight: screen.height,
-                userInfo: navigator.userAgent,
-                platform: navigator.platform,
-                scrPixDepth: screen.pixelDepth,
-                scrColDepth : screen.colorDepth,
-                scrResolution: window.devicePixelRatio,
                 component: 'Outro_General',
             });
 

@@ -6,12 +6,12 @@
 <head>
     <title>Introduction Jumping Dots</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
-    <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.0.4/plugins/custom-html-button-response-touchdown.js"></script>
+    <script src="jspsych-6.3.1/jspsych.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.3.1/plugins/custom-html-button-response-touchdown.js"></script>
     <script src="jatos.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
-    <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
+    <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet" type="text/css"/>
     <script src="objects.js"></script>
 
     <!-- This line prevents from scrolling and marking -->
@@ -145,12 +145,7 @@
                 subject: jatos.workerId,
                 screenWidth: screen.width,
                 screenHeight: screen.height,
-                userInfo: navigator.userAgent,
-                platform: navigator.platform,
-                scrPixDepth: screen.pixelDepth,
-                scrColDepth : screen.colorDepth,
                 scrOrientation: orientation,
-                scrResolution: window.devicePixelRatio,
                 component: 'Intro_Jump',
             });
 

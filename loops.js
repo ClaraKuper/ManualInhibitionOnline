@@ -32,10 +32,13 @@ function Jump_loop(nTrials, cFlash, cJump, cInwards, cPosition, fixTime, flashTi
                         // assign all values to the current trial
                         T = {
                             sidePoint: function(){if (position_condition === 'r'){return rightTar} else{return leftTar}}(),
-                            jumpedPoint: function(){if (position_condition === 'r'){if(inwards_condition){return rightTarShiftIn
+                            jumpedPoint: function(){if (jump_condition === 0) {if (position_condition === 'r'){return rightTar}
+                            else{return leftTar}}
+                            else {if (position_condition === 'r'){if(inwards_condition){return rightTarShiftIn
                             } else {return rightTarShiftOut}
                             } else {if(inwards_condition){return leftTarShiftIn
                             } else {return leftTarShiftOut}
+                            }
                             }
                             }(),
                             sideButton: function(){if (position_condition === 'r'){return rightTarInvisible} else{return leftTarInvisible}}(),
@@ -106,10 +109,10 @@ function Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, PosX, PosY, r
                         flashTime: tW + Math.random() * twSize,
                         targetPosX: targetPosX,
                         targetPosY: targetPosY,
-                        newTargetPosX: function(){if (cJump[cJ]){return newTargetPosX} else{return targetPosX}}(),
-                        newTargetPosY: function(){if (cJump[cJ]){return newTargetPosY} else{return targetPosY}}(),
+                        newTargetPosX: function(){if (cJump[cJ] === 1){return newTargetPosX} else{return targetPosX}}(),
+                        newTargetPosY: function(){if (cJump[cJ] === 1){return newTargetPosY} else{return targetPosY}}(),
                         flashShown: cFlash[cF],
-                        arrayJumped: cJump[cJ],
+                        stimJumps: cJump[cJ],
                         flashUp:function(){if (cFlash[cF]){return flashUpVisible} else{return flashUpInvisible}}(),
                         flashDown: function(){if (cFlash[cF]){return flashDownVisible} else{return flashDownInvisible}}(),
                         trialID: ID,

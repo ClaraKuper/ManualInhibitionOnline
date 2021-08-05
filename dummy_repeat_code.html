@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <title>Test repetition with jsPsych</title>
-  <script src="jspsych-6.0.4/jspsych.js"></script>
-  <script src="jspsych-6.0.4/plugins/jspsych-html-keyboard-response.js"></script>
+  <script src="jspsych-6.3.1/jspsych.js"></script>
+  <script src="jspsych-6.3.1/plugins/jspsych-html-keyboard-response.js"></script>
 
 </head>
 <body>
@@ -26,14 +26,14 @@ let trial = {
     trial_duration: 2000,
     on_finish: function (data) {
       if (data.response == null) {
-        if (!repeat_IDs.includes(jsPsych.timelineVariable('ID')())) {
-          repeat_IDs.push(jsPsych.timelineVariable('ID')());
+        if (!repeat_IDs.includes(jsPsych.timelineVariable('ID',true))) {
+          repeat_IDs.push(jsPsych.timelineVariable('ID',true));
           console.log('added: ' + repeat_IDs);
         }
       } else {
         repeat_IDs = repeat_IDs.filter(function(item) {
           console.log('filtered:' + repeat_IDs);
-          return item !== jsPsych.timelineVariable('ID')();
+          return item !== jsPsych.timelineVariable('ID',true);
         });
       }
     }
@@ -50,7 +50,7 @@ let trial_conditional = {
     timeline_variables: timeline_variables,
     randomize_order: true,
     conditional_function: function() {
-      if (first_set || repeat_IDs.includes(jsPsych.timelineVariable('ID')())) {
+      if (first_set || repeat_IDs.includes(jsPsych.timelineVariable('ID',true))) {
         return true;
       } else {
         return false;

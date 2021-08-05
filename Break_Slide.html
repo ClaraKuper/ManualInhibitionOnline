@@ -6,13 +6,13 @@
 <head>
     <title>Break Between Blocks</title>
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
-    <script src="jspsych-6.0.4/jspsych.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-instructions.js"></script>
-    <script src="jspsych-6.0.4/plugins/jspsych-html-button-response.js"></script>
-    <script src="jspsych-6.0.4/plugins/custom-html-button-response-custom.js"></script>
+    <script src="jspsych-6.3.1/jspsych.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
     <script src="jatos.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
-    <link href="jspsych-6.0.4/css/jspsych.css" rel="stylesheet" type="text/css"/>
+    <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet" type="text/css"/>
     <script src="common_vars.js"></script>
 
     <style>
@@ -95,12 +95,7 @@
                 subject: jatos.workerId, // id of the subject
                 screenWidth: screen.width, // screen width in px
                 screenHeight: screen.height, // screen height in px
-                userInfo: navigator.userAgent, // some information about the user device
-                platform: navigator.platform, // some information about the web browser
-                scrPixDepth: screen.pixelDepth, // some information about the pixel structure
-                scrColDepth : screen.colorDepth, // some information about the color channels
                 scrOrientation: orientation, // save the orientation information
-                scrResolution: window.devicePixelRatio, // save the pixel ratio
                 component: 'Break_General', // the component of the experiment
             });
             jsPsych.init({

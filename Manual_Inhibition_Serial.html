@@ -153,6 +153,11 @@
           }
           return repeat
         },
+        on_finish: function(){
+          let resultData = jsPsych.data.get().json();
+          jatos.uploadResultFile(resultData, "trialData.json")
+                  .catch(() => console.log("File upload failed"));
+        }
       }
 
       // define a training procedure
@@ -184,9 +189,6 @@
 
         jsPsych.data.addProperties({
           subject: jatos.workerId, // id of the subject
-          screenWidth: screen.width, // screen Width in px
-          screenHeight: screen.height, // screen Height in px
-          scrOrientation: ori, // save the orientation information
           component: 'Trials_Serial', // name the component
         });
 
@@ -195,7 +197,8 @@
             on_finish: function() {
               // once the code has run: save the results and call the next jatos component
               let resultJson = jsPsych.data.get().json();
-              jatos.submitResultData(resultJson, jatos.startNextComponent);
+              jatos.submitResultData(resultJson, jatos.startNextComponent)
+                .catch(() => console.log("File upload failed"));
             }
         });
       });

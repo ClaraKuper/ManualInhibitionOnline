@@ -35,15 +35,6 @@
 
         /* create timeline */
         let jump_demo_timeline = [];
-        let orientation;
-
-        // get screen orientation information
-        if (typeof screen.orientation === 'undefined'){
-           // if screen.orientation doesn't work, check if the device is broader than high.
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
-        } else {
-            orientation = [screen.orientation.angle, 'angle']
-        }
 
         // define all trial components
         // INTRODUCTION
@@ -143,9 +134,6 @@
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId,
-                screenWidth: screen.width,
-                screenHeight: screen.height,
-                scrOrientation: orientation,
                 component: 'Intro_Jump',
             });
 

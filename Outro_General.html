@@ -101,7 +101,7 @@
                 test_part: 'outro_comments'
             },
             on_finish(data){
-                data['survey_response'] = data.response['undefined'];
+                data['survey_response'] = data.response['Q0'];
             },
         };
         timeline.push(comments);
@@ -152,8 +152,6 @@
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId,
-                screenWidth: screen.width,
-                screenHeight: screen.height,
                 component: 'Outro_General',
             });
 

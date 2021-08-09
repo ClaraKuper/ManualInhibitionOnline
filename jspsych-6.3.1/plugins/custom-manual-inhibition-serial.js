@@ -383,7 +383,16 @@ jsPsych.plugins["manual-inhibition-serial"] = (function() {
   
                     // other
                     "errors": errors, // any error messages in the console
-                    
+                    "screenWidth": screen.width, // the width of the screen
+                    "screenHeight": screen.height, // the height of the screen
+                    "scrOrientation": function(){if (typeof screen.orientation === 'undefined') {
+                        // alternative when orientation is not available
+                        // check if the device is wider than high
+                        return [screen.innerHeight<screen.innerWidth, 'rel']
+                    } else {
+                        return [screen.orientation.angle, 'angle']
+                    }
+                    }(),
                 };
   
                 // clear the display

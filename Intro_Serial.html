@@ -56,7 +56,7 @@
     flashDown: '', // the lower flash is either visible or invisible
     flashTime: 3000, // the time when the flash appears between 0 ms and the trial duration
     flashShown: 0,
-    arrayJump: 0,
+    stimJumped: 0,
     flashDuration: 0, // the time the flash is visible in ms
     trialDuration: 5000, // the trial duration after the first point was touched
     waitAfter: 500, // how long to wait after the trial ended
@@ -95,9 +95,9 @@
     buttonJumpPositionY: [-2, -10, 21, -13, -5, 19],
     flashUp: flashUpVisible, // the upper flash is either visible or invisible
     flashDown: flashDownVisible, // the lower flash is either visible or invisible
-    flashTime: 1000, // the time when the flash appears between 0 ms and the trial duration
+    flashTime: 500, // the time when the flash appears between 0 ms and the trial duration
     flashShown: 1,
-    arrayJump: 0,
+    stimJumped: 0,
     flashDuration: 50, // the time the flash is visible in ms
     trialDuration: 3000, // the trial duration after the first point was touched
     waitAfter: 500, // how long to wait after the trial ended
@@ -156,7 +156,7 @@
   };
   timeline.push(instructions_serial3);
 
-  // show two trial with a flash and jump, 3 seconds to answer, feedback will be provided
+  // show one trial with a flash and jump, 3 seconds to answer, feedback will be provided
   let flash_serial_jump = {
     type: 'manual-inhibition-serial', // calls the custom plugin
     buttonVisible: genericPoint, // the visible buttons are an array of dots
@@ -167,9 +167,9 @@
     buttonJumpPositionY: [-12, 7, 9, -3, 15, -19],
     flashUp: flashUpVisible, // the upper flash is either visible or invisible
     flashDown: flashDownVisible, // the lower flash is either visible or invisible
-    flashTime: 500, // the time when the flash appears between 0 ms and the trial duration
+    flashTime: 200, // the time when the flash appears between 0 ms and the trial duration
     flashShown: 1,
-    arrayJump: 0,
+    stimJumped: 1,
     flashDuration: 50, // the time the flash is visible in ms
     trialDuration: 3000, // the trial duration after the first point was touched
     waitAfter: 500, // how long to wait after the trial ended
@@ -218,9 +218,6 @@
 
       jsPsych.data.addProperties({
         subject: jatos.workerId,
-        screenWidth: screen.width,
-        screenHeight: screen.height,
-        scrOrientation: ori,
         component: 'Intro_Serial',
       });
 

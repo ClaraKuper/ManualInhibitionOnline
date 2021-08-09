@@ -32,7 +32,6 @@
         console.log('Is there much left? - Yes!');
 
         // initialize some values
-        let orientation; // the orientation of the screen (user surveillance)
         let time_out; // if the break time is over
 
         // adjust the screen orientation
@@ -92,10 +91,7 @@
         jatos.onLoad(function (){
             // add general data properties to all fields of this trial
             jsPsych.data.addProperties({
-                subject: jatos.workerId, // id of the subject
-                screenWidth: screen.width, // screen width in px
-                screenHeight: screen.height, // screen height in px
-                scrOrientation: orientation, // save the orientation information
+                subject: jatos.workerId,
                 component: 'Break_General', // the component of the experiment
             });
             jsPsych.init({

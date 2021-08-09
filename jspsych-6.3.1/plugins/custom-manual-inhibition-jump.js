@@ -166,7 +166,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
         let waitTime; // when the dot in the center was pressed (duration)
   
         // xy properties
-        let allTouches = []; // array of touches across the entire screen (X, Y, time)
+        // let allTouches = []; // array of touches across the entire screen (X, Y, time)
         let xyCoords = {
           // array to save the X and Y coordinates of central and side touches
           centralX: null,
@@ -174,11 +174,11 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           sideX: null,
           sideY: null,
         };
-        let xyCrossScreen = {
+        /*let xyCrossScreen = {
           // array to save touches everywhere on the screen
           touchX: null,
           touchY: null,
-        };
+        };*/
   
         // stimulus coordinates check
         let sideStim = document.getElementsByClassName('target')[0].getBoundingClientRect(); // element to save the side dot position
@@ -209,7 +209,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
         // EVENT LISTENERS
         // record all touches across the document
-        document.addEventListener(responseOn, function (e) {
+        /*document.addEventListener(responseOn, function (e) {
           // save xy coordinates to the xyCrossScreen variable
           xyCrossScreen.touchX = e.pageX;
           xyCrossScreen.touchY = e.pageY;
@@ -220,7 +220,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           }
           // save all touches in our array
           allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
-        })
+        })*/
   
         // FUNCTIONS
         let show_new = function () {
@@ -353,42 +353,52 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
   
   
           // gather the data to store for the trial
-          let trial_data = {
-            "rt": rtTime, // reaction time
-            "mt": mtTime, // movement time
-            "tDur": tDur, // trial duration
-            "cTouchX": xyCoords.centralX, // X touch central
-            "cTouchY": xyCoords.centralY, // Y touch central
-            "sTouchX": xyCoords.sideX, // X touch side
-            "sTouchY": xyCoords.sideY, // Y touch side
+            let trial_data = {
+                "rt": rtTime, // reaction time
+                "mt": mtTime, // movement time
+                "tDur": tDur, // trial duration
+                "cTouchX": xyCoords.centralX, // X touch central
+                "cTouchY": xyCoords.centralY, // Y touch central
+                "sTouchX": xyCoords.sideX, // X touch side
+                "sTouchY": xyCoords.sideY, // Y touch side
   
-            // custom timing
-            "startTime": startTime, // trial started
-            "endTime": endTime, // trial ended
-            "goSignalTime": goSignalTime, // go signal was shown
-            "goTime": goTime, // finger was lifted
-            "respTime": respTime, // finger was on side button
-            "flashOnTime": flashOnTime, // when the flash appeared
-            "flashOffTime": flashOffTime, // when the flash disappeared
-            "waitTime": waitTime, // how long the participant waited till they pressed the first button
+                // custom timing
+                "startTime": startTime, // trial started
+                "endTime": endTime, // trial ended
+                "goSignalTime": goSignalTime, // go signal was shown
+                "goTime": goTime, // finger was lifted
+                "respTime": respTime, // finger was on side button
+                "flashOnTime": flashOnTime, // when the flash appeared
+                "flashOffTime": flashOffTime, // when the flash disappeared
+                "waitTime": waitTime, // how long the participant waited till they pressed the first button
   
-            // check values
-            "earlyResponse": earlyResponse,
-            "lateResponse": lateResponse,
-            "trialShown": true,
-  
-            // errors
-            "errors": errors,
-  
-            // positions
-            "sideX": sideStim.x,
-            "sideY": sideStim.y,
-            "centralX": centralStim.x,
-            "centralY": centralStim.y,
-            "jumpedX": jumpedStim.x,
-            "jumpedY": jumpedStim.y,
-            "docTouches": allTouches,
-          };
+                // check values
+                "earlyResponse": earlyResponse,
+                "lateResponse": lateResponse,
+                "trialShown": true,
+
+                // positions
+                "sideX": sideStim.x,
+                "sideY": sideStim.y,
+                "centralX": centralStim.x,
+                "centralY": centralStim.y,
+                "jumpedX": jumpedStim.x,
+                "jumpedY": jumpedStim.y,
+               // "docTouches": allTouches,
+
+                // others
+                "errors": errors,
+                "screenWidth": screen.width, // the width of the screen
+                "screenHeight": screen.height, // the height of the screen
+                "scrOrientation": function(){if (typeof screen.orientation === 'undefined') {
+                    // alternative when orientation is not available
+                    // check if the device is wider than high
+                    return [document.documentElement.clientHeight<document.documentElement.clientWidth, 'rel']
+                } else {
+                    return [screen.orientation.angle, 'angle']
+                }
+                }(),
+            };
 
           // clear the display
           display_element.innerHTML = '';
@@ -407,20 +417,6 @@ jsPsych.plugins["manual-inhibition-jump"] = (function() {
           errors.push(msg);
           return false;
         };
-  
-     /* } else {
-        // if we should not run the trial
-        // save a minimal trial data version
-        let trial_data = {
-          "trialShown": false, // marker that the trial was not shown
-          "waitTime": 0.1, // time value for adding up the duration of the experiment
-        };
-  
-        // move on to the next trial
-        jsPsych.finishTrial(trial_data);
-  
-      }*/
-  
     }
   
     return plugin;

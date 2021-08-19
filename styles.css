@@ -1,7 +1,7 @@
 /* CSS defining the dots styles used in the ManualInhibitionOnline experiment */
 
 dot {
-    position:absolute;
+    position: absolute;
     display: inline;
     top: 50%;
     height: 50px;
@@ -16,7 +16,7 @@ dot {
 }
 
 InvisibleDot {
-    position:absolute;
+    position: absolute;
     display: inline;
     top: 50%;
     height: 300px; /* 300 px original*/
@@ -30,13 +30,13 @@ InvisibleDot {
     user-select: none;
 }
 
-SerialButtons{
-    position:absolute;
+SerialButtons {
+    position: absolute;
     display: inline;
     top: 50%;
-    height:100px;
+    height: 100px;
     width: 100px;
-    background-color: rgba(63,63,63,0);
+    background-color: rgba(63, 63, 63, 0);
     border-radius: 50%;
     margin-top: -50px;
     margin-left: -50px;
@@ -46,33 +46,33 @@ SerialButtons{
 }
 
 
-rectangleUp{
-    position:absolute; 
-    left:0; 
-    top:0; 
-    width:100%; 
-    height:calc(50% - 100px); 
-    background-color:rgba(255,255,255,1);
-    -webkit-touch-callout: none; 
+rectangleUp {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: calc(50% - 100px);
+    background-color: rgba(255, 255, 255, 1);
+    -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
 }
 
-rectangleDown{
-    position:absolute; 
-    left:0; 
-    bottom:0; 
-    width:100%; 
-    height:calc(50% - 100px); 
-    background-color:rgba(255,255,255,1);
-    -webkit-touch-callout: none; 
+rectangleDown {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    height: calc(50% - 100px);
+    background-color: rgba(255, 255, 255, 1);
+    -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
 
 }
 
-p{
-    -webkit-touch-callout: none; 
+p {
+    -webkit-touch-callout: none;
     -webkit-user-select: none;
     user-select: none;
 }

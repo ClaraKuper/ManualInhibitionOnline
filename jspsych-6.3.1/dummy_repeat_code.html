@@ -25,6 +25,7 @@ let trial = {
     choices: jsPsych.ALL_KEYS,
     trial_duration: 2000,
     on_finish: function (data) {
+      console.log(window.innerHeight<window.innerWidth)
       if (data.response == null) {
         if (!repeat_IDs.includes(jsPsych.timelineVariable('ID'))) {
           repeat_IDs.push(jsPsych.timelineVariable('ID'));

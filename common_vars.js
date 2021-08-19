@@ -1,4 +1,3 @@
-
 /* create timeline */
 let timeline = []; // timeline to run on jsPsych.init
 
@@ -11,16 +10,17 @@ let T; // initialize value for trial parameters
 let lateResponse; // was the response given in time
 let earlyResponse; // was the response given too early
 let repeat; // check if the current trial should be repeated or not
+let nDisplayTurns; // check how often the Display was rotated
 
 let orderResponse; // check if all buttons in the serial trial were pressed in order
 
 // parameters for user control
 let ori; // get the screen orientation (landscape or portrait)
 // check the screen
-if (typeof screen.orientation === 'undefined'){
+if (typeof screen.orientation === 'undefined') {
     // alternative when orientation is not available
     // check if the device is wider than high
-    ori = [screen.innerHeight<screen.innerWidth, 'rel']
+    ori = [screen.innerHeight < screen.innerWidth, 'rel']
 } else {
     ori = [screen.orientation.angle, 'angle']
 }

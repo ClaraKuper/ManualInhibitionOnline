@@ -36,7 +36,7 @@
 
         // adjust the screen orientation
         if (typeof screen.orientation === 'undefined'){
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+            orientation = [window.innerHeight<window.innerWidth, 'rel']
         } else {
             orientation = [screen.orientation.angle, 'angle']
         }

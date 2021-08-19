@@ -54,9 +54,8 @@
         let general_intro = {
             type: "instructions",
             pages: ["<p>Please bring your touchscreen device in landscape mode now. </p>",
-                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts about 30 minutes and you shouldn't " +
-                "close the tab during the experiment. There will be dedicated times for breaks during the experiment. However, you shouldn't " +
-                "take breaks longer than 15 minutes.</p>",
+                "<p> Make sure you are comfortable and nothing distracts you. The experiment lasts 30 to 45 minutes and you shouldn't " +
+                "close the tab during the experiment. There will be dedicated times for breaks during the experiment.</p>",
                 "<p>This experiment has two parts with different tasks. Before each part, we will introduce you to the upcoming " +
                 "task. The parts are run after each other, so you only have to concentrate on doing one at a time.</p>"],
             show_clickable_nav: true,
@@ -98,6 +97,8 @@
                 subject: jatos.workerId, // id of the subject
                 screenWidth: screen.width, // screen width in px
                 screenHeight: screen.height, // screen height in px
+                windowWidth: window.innerWidth, // window width in px
+                windowHeight: window.innerHeight, // window height in px
                 userInfo: navigator.userAgent, // some information about the user device
                 platform: navigator.platform, // some information about the web browser
                 scrPixDepth: screen.pixelDepth, // some information about the pixel structure

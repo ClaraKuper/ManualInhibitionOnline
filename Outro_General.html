@@ -16,8 +16,9 @@
         p {
             font-size: 1em;
         }
+
         dot {
-            position:absolute;
+            position: absolute;
             display: inline;
             top: 50%;
             height: 50px;
@@ -33,139 +34,150 @@
 </head>
 
 <body bgcolor='gray'>
-    <script>
+<script>
 
-        // salute the hacker
-        console.log("Oh, Oh, Oh, I'm on vaccation, every single day ...");
+    // salute the hacker
+    console.log("Oh, Oh, Oh, I'm on vaccation, every single day ...");
 
-        // create arrays
-        let timeline = [];
-        let scale = ["Concentrated", "Somewhat Concentrated", "Neutral", "Somewhat Distracted", "Distracted"];
-        let finger_choice = ['thumb', 'index', 'other', 'multiple'];
-        let fullscreen_responses = ['yes', 'no']
+    // create arrays
+    let timeline = [];
+    let scale = ["Concentrated", "Somewhat Concentrated", "Neutral", "Somewhat Distracted", "Distracted"];
+    let finger_choice = ['thumb', 'index', 'other', 'multiple'];
+    let fullscreen_responses = ['yes', 'no']
 
-        // check for concentration
-        let focus = {
-            type: 'survey-likert',
-            questions: [
-                {prompt: "<p>You're Done! Please indicate how distracted or concentrated you felt during the experiment.</p>", name: 'control', labels: scale, required: true}
-            ],
-            choices: ['Submit answer'],
-            data: {
-                test_part: 'outro_concentration',
+    // check for concentration
+    let focus = {
+        type: 'survey-likert',
+        questions: [
+            {
+                prompt: "<p>You're Done! Please indicate how distracted or concentrated you felt during the experiment.</p>",
+                name: 'control',
+                labels: scale,
+                required: true
+            }
+        ],
+        choices: ['Submit answer'],
+        data: {
+            test_part: 'outro_concentration',
+        },
+        on_finish(data) {
+            data['survey_response'] = scale[parseInt(data.responses[6])];
+        },
+
+    };
+    timeline.push(focus);
+
+    // check which finger was used
+    let finger = {
+        type: 'html-button-response',
+        stimulus: "<p>Which finger did you use to respond?</p>",
+        choices: finger_choice,
+        data: {
+            test_part: 'outro_finger',
+        },
+        on_finish(data) {
+            data['survey_response'] = finger_choice[data.button_pressed];
+        },
+
+    };
+    timeline.push(finger);
+
+    // check if fullscreen mode was used
+    let screen = {
+        type: 'html-button-response',
+        stimulus: "<p>Did your screen switch to fullscreen mode during the main experiment?</p>",
+        choices: fullscreen_responses,
+        data: {
+            test_part: 'outro_screen',
+        },
+        on_finish(data) {
+            data['survey_response'] = fullscreen_responses[data.button_pressed];
+        },
+    };
+    timeline.push(screen);
+
+    // check on any other comments
+    let comments = {
+        type: 'survey-text',
+        questions: [
+            {
+                prompt: "Did you notice something during the experiment that you'd like to share?",
+                placeholder: "Type your answer here."
             },
-            on_finish(data){
-                data['survey_response'] = scale[parseInt(data.responses[6])];
-            },
+        ],
+        data: {
+            test_part: 'outro_comments'
+        },
+        on_finish(data) {
+            data['survey_response'] = data.response['Q0'];
+        },
+    };
+    timeline.push(comments);
 
-        };
-        timeline.push(focus);
+    /* define debrief */
+    // end the experiment regularly
+    let debrief_block = {
+        type: "html-button-response",
+        stimulus: "<p>Thanks for your participation!</p>",
+        choices: [''],
+        button_html: [''],
+        trial_duration: 1000,
+        data: {
+            test_part: 'outro_bye',
+        },
 
-        // check which finger was used
-        let finger = {
-            type: 'html-button-response',
-            stimulus: "<p>Which finger did you use to respond?</p>",
-            choices: finger_choice,
-            data: {
-                test_part: 'outro_finger',
-            },
-            on_finish(data){
-                data['survey_response'] = finger_choice[data.button_pressed];
-            },
+    };
+    timeline.push(debrief_block);
 
-        };
-        timeline.push(finger);
+    // set up the regular node when the task was successfull
+    success_node = {
+        timeline: timeline,
+        conditional_function: function () {
+            return jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime
+        },
+    }
 
-        // check if fullscreen mode was used
-        let screen = {
-            type: 'html-button-response',
-            stimulus: "<p>Did your screen switch to fullscreen mode during the main experiment?</p>",
-            choices: fullscreen_responses,
-            data: {
-              test_part: 'outro_screen',
-            },
-            on_finish(data){
-                data['survey_response'] = fullscreen_responses[data.button_pressed];
-            },
-        };
-        timeline.push(screen);
+    // a different end message to display when the participant took too much time
+    let debrief_block_fail = {
+        type: "html-button-response",
+        stimulus: "<p>You took too much time for this experiment. The study was ended. We will pay you according to" +
+            " the number of trials you have completed. You can close this window now.</p>",
+        choices: [''],
+        button_html: [''],
+        data: {
+            test_part: 'outro_bye',
+        },
 
-        // check on any other comments
-        let comments = {
-            type: 'survey-text',
-            questions: [
-                {prompt: "Did you notice something during the experiment that you'd like to share?",
-                placeholder: "Type your answer here."},
-            ],
-            data: {
-                test_part: 'outro_comments'
-            },
-            on_finish(data){
-                data['survey_response'] = data.response['Q0'];
-            },
-        };
-        timeline.push(comments);
+    };
 
-        /* define debrief */
-        // end the experiment regularly
-        let debrief_block = {
-            type: "html-button-response",
-            stimulus: "<p>Thanks for your participation!</p>",
-            choices: [''],
-            button_html: [''],
-            trial_duration: 1000,
-            data: {
-                test_part: 'outro_bye',
-            },
+    // set up a seperate node when the trial failed
+    fail_node = {
+        timeline: [debrief_block_fail],
+        conditional_function: function () {
+            return jatos.studySessionData.totalWaitTime >= jatos.studySessionData.allowedWaitTime
+        },
 
-        };
-        timeline.push(debrief_block);
+    }
 
-        // set up the regular node when the task was successfull
-        success_node = {
-            timeline: timeline,
-            conditional_function: function(){return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime},
-        }
+    /* start the experiment */
+    jatos.onLoad(function () {
 
-        // a different end message to display when the participant took too much time
-        let debrief_block_fail = {
-            type: "html-button-response",
-            stimulus: "<p>You took too much time for this experiment. The study was ended. We will pay you according to" +
-                " the number of trials you have completed. You can close this window now.</p>",
-            choices: [''],
-            button_html: [''],
-            data: {
-                test_part: 'outro_bye',
-            },
-
-        };
-
-        // set up a seperate node when the trial failed
-        fail_node = {
-            timeline: [debrief_block_fail],
-            conditional_function: function(){return jatos.studySessionData.totalWaitTime  >= jatos.studySessionData.allowedWaitTime},
-
-        }
-
-        /* start the experiment */
-        jatos.onLoad(function () {
-
-            jsPsych.data.addProperties({
-                subject: jatos.workerId,
-                component: 'Outro_General',
-            });
-
-
-            jsPsych.init({
-                timeline: [success_node, fail_node],
-                fullscreen: true,
-                on_finish: function() {
-                    let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
-                },
-            });
+        jsPsych.data.addProperties({
+            subject: jatos.workerId,
+            component: 'Outro_General',
         });
-    </script>
+
+
+        jsPsych.init({
+            timeline: [success_node, fail_node],
+            fullscreen: true,
+            on_finish: function () {
+                let resultJson = jsPsych.data.get().json();
+                jatos.submitResultData(resultJson, jatos.startNextComponent);
+            },
+        });
+    });
+</script>
 </body>
 
 

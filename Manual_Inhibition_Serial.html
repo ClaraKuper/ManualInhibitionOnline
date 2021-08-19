@@ -3,68 +3,68 @@
 <html lang="en">
 
 <head>
-  <title>Experiment Block Serial Dots</title>
-  <script src="jspsych-6.3.1/jspsych.js"></script>
-  <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
-  <script src="jspsych-6.3.1/plugins/jspsych-fullscreen.js"></script>
-  <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
-  <!-- custom scripts -->
-  <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-serial.js"></script>
-  <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
-  <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
-  <link href="styles.css" rel="stylesheet" type="text/css">
-  <script src="objects.js"></script>
-  <script type= "text/javascript" src="loops.js"></script>
-  <script src="common_vars.js"></script>
-  <!-- jatos import -->
-  <script src="jatos.js"></script>
-  <!-- css import -->
-  <link rel="stylesheet" type="text/css" href="jspsych-6.3.1/css/jspsych.css">
+    <title>Experiment Block Serial Dots</title>
+    <script src="jspsych-6.3.1/jspsych.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-fullscreen.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+    <!-- custom scripts -->
+    <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-serial.js"></script>
+    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+    <link href="styles.css" rel="stylesheet" type="text/css">
+    <script src="objects.js"></script>
+    <script type="text/javascript" src="loops.js"></script>
+    <script src="common_vars.js"></script>
+    <!-- jatos import -->
+    <script src="jatos.js"></script>
+    <!-- css import -->
+    <link rel="stylesheet" type="text/css" href="jspsych-6.3.1/css/jspsych.css">
     <!-- use the line below to prevent user scaling and marking -->
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 </head>
 
-  <body bgcolor='gray'>
-    <script>
+<body bgcolor='gray'>
+<script>
 
-      // salute the hacker
-      console.log('42');
+    // salute the hacker
+    console.log('42');
 
-      // define parameter values for the experiment
-      // ALERT! Parameters were changed for testing
-      let nTrials = 5; // 5 number of trials per condition
-      let trialDuration = 1500; //1500; //  1500 duration of the trial
-      let cFlash = [0,1]; // the flash conditions
-      let cJump = [0,1]; // the jump conditions
-      // for this design, we will create n even time windows between 0 up to the duration of the experiment.
-      // we will sample nTrials random trials in each of these time windows.
-      // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
-      // and avoids clusters appearing by chance.
-      let maxFlashTime = 1000; // maximum time after which a flash is shown in ms
-      let twSize = 100; // 100 the size of the time windows
-      let flashDuration = 50; // how long the flash will be on the screen in ms
-      let waitAfter = 500; // how long we will wait at the end of the trial in ms
-      let xPositions = [250, 150, 50, -50, -150, -250]; // the mean X position of the dots
-      let yPositions = [0, 0, 0, 0, 0, 0];  // the mean Y position of the dots
-      let positionJitter = 20; // the max random jitter of the dots in both directions
+    // define parameter values for the experiment
+    // ALERT! Parameters were changed for testing
+    let nTrials = 5; // 5 number of trials per condition
+    let trialDuration = 1500; //1500; //  1500 duration of the trial
+    let cFlash = [0, 1]; // the flash conditions
+    let cJump = [0, 1]; // the jump conditions
+    // for this design, we will create n even time windows between 0 up to the duration of the experiment.
+    // we will sample nTrials random trials in each of these time windows.
+    // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
+    // and avoids clusters appearing by chance.
+    let maxFlashTime = 700; // maximum time after which a flash is shown in ms
+    let twSize = maxFlashTime / 10; // the size of the time windows maxFlashTime/10 (will result in 10 time windows)
+    let flashDuration = 50; // how long the flash will be on the screen in ms
+    let waitAfter = 500; // how long we will wait at the end of the trial in ms
+    let xPositions = [250, 150, 50, -50, -150, -250]; // the mean X position of the dots
+    let yPositions = [0, 0, 0, 0, 0, 0];  // the mean Y position of the dots
+    let positionJitter = 20; // the max random jitter of the dots in both directions
 
-      // load the trial structure
-      let timelineVariables = Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, xPositions, yPositions, positionJitter);
+    // load the trial structure
+    let timelineVariables = Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, xPositions, yPositions, positionJitter);
 
-      // ask for fullscreen permission
-      let confirm_fullscreen = {
-          type: "fullscreen",
-          message:["<p>Click below to change to fullscreen mode.</p>"],
-          fullscreen_mode: true,
-          button_label: 'Fullscreen',
-          data: {
-              test_part: 'fullscreen_request',
-          }
-      };
-      timeline.push(confirm_fullscreen);
+    // ask for fullscreen permission
+    let confirm_fullscreen = {
+        type: "fullscreen",
+        message: ["<p>Click below to change to fullscreen mode.</p>"],
+        fullscreen_mode: true,
+        button_label: 'Fullscreen',
+        data: {
+            test_part: 'fullscreen_request',
+        }
+    };
+    timeline.push(confirm_fullscreen);
 
-      // define the main trial for the experiment
-      let trial = {
+    // define the main trial for the experiment
+    let trial = {
         type: 'manual-inhibition-serial', // calls the custom plugin
         buttonVisible: genericPoint, // the visible buttons are an array of dots
         buttonInvisible: genericInvisiblePoint, // the invisible buttons are an array of dots
@@ -81,127 +81,130 @@
         trialDuration: trialDuration, // the trial duration after the first point was touched
         waitAfter: waitAfter, // how long to wait after the trial ended
         data: {
-          // assign relevant data
-          test_part: 'trial', // the part of the experiment
-          flashTime: jsPsych.timelineVariable('flashTime'),  // the time when a flash was shown
-          trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
-          stimJumped: jsPsych.timelineVariable('stimJumps'), // if the array jumped or not
+            // assign relevant data
+            test_part: 'trial', // the part of the experiment
+            flashTime: jsPsych.timelineVariable('flashTime'),  // the time when a flash was shown
+            trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
+            stimJumped: jsPsych.timelineVariable('stimJumps'), // if the array jumped or not
 
         },
-        on_finish:  function(data){
-          // evaluate if the there were any mistakes and if the trial need repetition
-          orderResponse = data.orderResponse; // were the answers given in order
-          lateResponse = data.lateResponse; // was the response fast enough
-          // monitor the time till the first button was pressed
-          jatos.studySessionData.totalWaitTime += data.waitTime;
+        on_finish: function (data) {
+            // evaluate if the there were any mistakes and if the trial need repetition
+            orderResponse = data.orderResponse; // were the answers given in order
+            lateResponse = data.lateResponse; // was the response fast enough
+            nDisplayTurns = data.nDisplayTurns; // if the display was turned
+            // monitor the time till the first button was pressed
+            jatos.studySessionData.totalWaitTime += data.waitTime;
 
-          // if out of order or late response, create new T object and push it to repeat_IDs
-          // evaluate only for trials that were shown
-          if (lateResponse || !orderResponse) {
-            // if there was any error
-            // get the trial ID
-            if (!repeat_IDs.includes(jsPsych.timelineVariable('trialID'))) {
-              repeat_IDs.push(jsPsych.timelineVariable('trialID'));
+            // if out of order or late response, create new T object and push it to repeat_IDs
+            // evaluate only for trials that were shown
+            if (lateResponse || !orderResponse) {
+                // if there was any error
+                // get the trial ID
+                if (!repeat_IDs.includes(jsPsych.timelineVariable('trialID'))) {
+                    repeat_IDs.push(jsPsych.timelineVariable('trialID'));
+                }
+            } else {
+                repeat_IDs = repeat_IDs.filter(function (item) {
+                    return item !== jsPsych.timelineVariable('trialID');
+                });
             }
-          } else {
-            repeat_IDs = repeat_IDs.filter(function(item) {
-              return item !== jsPsych.timelineVariable('trialID');
-            });
-          }
         }
-      };
+    };
 
-      // display feedback
-      let feedback = {
+    // display feedback
+    let feedback = {
         type: 'html-button-response-custom',
         trialID: jsPsych.timelineVariable('trialID'),
         stimulus: function () {
-          // evaluate which feedback should be shown
-          if (lateResponse){
-            return "<p>Too slow</p>"
-          } else if (orderResponse) {
-            return "<p>Well Done.</p>"
-          } else {
-            return "<p>Please follow the order.</p>"
-          }
+            // evaluate which feedback should be shown
+            if (nDisplayTurns > 0){
+                return "<p>Don't turn the display during the trial.</p>"
+            } else if (lateResponse) {
+                return "<p>Too slow</p>"
+            } else if (orderResponse) {
+                return "<p>Well done.</p>"
+            } else {
+                return "<p>Please follow the order.</p>"
+            }
         },
         post_trial_gap: 0, // needs to be zero to avoid waiting times when the trial is skipped
         choices: [''], // don't display choices
         button_html: '', // don't display buttons
         trial_duration: 1500, // display the feedback for 1500 ms
-        data:{
+        data: {
             test_part: 'feedback',
         },
-      };
+    };
 
-      let trial_conditional = {
+    let trial_conditional = {
         timeline: [trial, feedback],
         conditional_function: function () {
-          // in this function, we define if we want to run this trial or not
-          // get the id of the current trial
-          let id_here = jsPsych.timelineVariable('trialID');
-          // check if we are past time
-          if (jatos.studySessionData.totalWaitTime >= jatos.studySessionData.allowedWaitTime) {
-            repeat = false
-          } else if (!first_set) {
-            // run the trial if the value is inside the array
-            repeat = repeat_IDs.includes(id_here);
-            // if there are any values in the repeat trial array
-          } else {
-            // this is the first round, we run every trial
-            repeat = true;
-          }
-          return repeat
+            // in this function, we define if we want to run this trial or not
+            // get the id of the current trial
+            let id_here = jsPsych.timelineVariable('trialID');
+            // check if we are past time
+            if (jatos.studySessionData.totalWaitTime >= jatos.studySessionData.allowedWaitTime) {
+                repeat = false
+            } else if (!first_set) {
+                // run the trial if the value is inside the array
+                repeat = repeat_IDs.includes(id_here);
+                // if there are any values in the repeat trial array
+            } else {
+                // this is the first round, we run every trial
+                repeat = true;
+            }
+            return repeat
         },
-        on_finish: function(){
-          let resultData = jsPsych.data.get().json();
-          jatos.uploadResultFile(resultData, "trialData.json")
-                  .catch(() => console.log("File upload failed"));
+        on_finish: function () {
+            let resultData = jsPsych.data.get().json();
+            jatos.uploadResultFile(resultData, "trialData.json")
+                .catch(() => console.log("File upload failed"));
         }
-      }
+    }
 
-      // define a training procedure
-      let trial_loop = {
+    // define a training procedure
+    let trial_loop = {
         timeline: [trial_conditional], // one trial and one feedback will be repeated after each other
         timeline_variables: timelineVariables, // our design structure provides the timeline variables
         randomize_order: true, // our design structure will be repeated in a random order
         // this function evaluates if we want to repeat the loop
         // if it evaluates to true, we repeat the full design matrix
-        loop_function: function(){
+        loop_function: function () {
             first_set = false
             // return true or false
             return repeat_IDs.length > 0;
         },
-      };
-      timeline.push(trial_loop);
+    };
+    timeline.push(trial_loop);
 
-      // define a timeline that is only executed when the allowed waiting time was not exceeded
-      let conditional_timeline = {
+    // define a timeline that is only executed when the allowed waiting time was not exceeded
+    let conditional_timeline = {
         timeline: timeline,
-        conditional_function: function(){
-          return jatos.studySessionData.totalWaitTime  < jatos.studySessionData.allowedWaitTime;
+        conditional_function: function () {
+            return jatos.studySessionData.totalWaitTime < jatos.studySessionData.allowedWaitTime;
         },
-      };
+    };
 
-      /* start the experiment */
-      // load jatos - I can use jatos functions after this line
-      jatos.onLoad(function () {
+    /* start the experiment */
+    // load jatos - I can use jatos functions after this line
+    jatos.onLoad(function () {
 
         jsPsych.data.addProperties({
-          subject: jatos.workerId, // id of the subject
-          component: 'Trials_Serial', // name the component
+            subject: jatos.workerId, // id of the subject
+            component: 'Trials_Serial', // name the component
         });
 
         jsPsych.init({
             timeline: [conditional_timeline, pseudo_trial], // use the timeline to run the experiment
-            on_finish: function() {
-              // once the code has run: save the results and call the next jatos component
-              let resultJson = jsPsych.data.get().json();
-              jatos.submitResultData(resultJson, jatos.startNextComponent)
-                .catch(() => console.log("File upload failed"));
+            on_finish: function () {
+                // once the code has run: save the results and call the next jatos component
+                let resultJson = jsPsych.data.get().json();
+                jatos.submitResultData(resultJson, jatos.startNextComponent)
+                    .catch(() => console.log("File upload failed"));
             }
         });
-      });
-    </script>
-  </body>
+    });
+</script>
+</body>
 </html>

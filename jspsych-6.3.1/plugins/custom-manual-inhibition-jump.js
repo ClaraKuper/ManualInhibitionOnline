@@ -172,7 +172,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         let waitTime; // when the dot in the center was pressed (duration)
 
         // xy properties
-        // let allTouches = []; // array of touches across the entire screen (X, Y, time)
+        let offTouches = []; // array of touches across the entire screen (X, Y, time)
         let xyCoords = {
             // array to save the X and Y coordinates of central and side touches
             centralX: null,
@@ -180,11 +180,13 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
             sideX: null,
             sideY: null,
         };
-        /*let xyCrossScreen = {
-          // array to save touches everywhere on the screen
-          touchX: null,
-          touchY: null,
-        };*/
+
+        let offTouch = {
+            // array to save touches everywhere on the screen
+            touchX: null,
+            touchY: null,
+            time: null,
+        };
 
         // stimulus coordinates check
         let sideStim = document.getElementsByClassName('target')[0].getBoundingClientRect(); // element to save the side dot position
@@ -219,37 +221,34 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         let nDisplayTurns = 0;
         let goodOrientation;
 
-        // EVENT LISTENERS
-        // record all touches across the document
-        /*document.addEventListener(responseOn, function (e) {
-          // save xy coordinates to the xyCrossScreen variable
-          xyCrossScreen.touchX = e.pageX;
-          xyCrossScreen.touchY = e.pageY;
-          if (xyCrossScreen.touchX == null) {
-            // if that didn't work, we might be on a different browser. Instead, we try:
-            xyCrossScreen.touchX = e.changedTouches[0].screenX;
-            xyCrossScreen.touchY = e.changedTouches[0].screenY;
-          }
-          // save all touches in our array
-          allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
-        })*/
-
         // FUNCTIONS
+        let saveOffTouches = function (e) {
+
+            if (!document.getElementById('jspsych-content').contains(e.target)) {
+
+                // save xy coordinates to the offTouch variable
+                offTouch.time = jsPsych.totalTime();
+                offTouch.touchX = e.clientX;
+                offTouch.touchY = e.clientY;
+                if (offTouch.touchX == null) {
+                    // if that didn't work, we might be on a different browser. Instead, we try:
+                    offTouch.touchX = e.touches["0"].clientX;
+                    offTouch.touchY = e.touches["0"].clientY;
+                }
+                // save all touches in our array
+                offTouches.push(offTouch);
+            }
+        }
+
         let checkScreenSize = function () {
-            console.log('Screen size check!');
             // retrieve the size of the window
 
             let width_here = window.innerWidth;
             let height_here = window.innerHeight;
-            console.log('w: ' + width_here)
-            console.log('h: ' + height_here)
-
-            console.log(Math.max(Math.abs(jumpedStim.x), Math.abs(sideStim.x)));
-            console.log(Math.min(jumpedStim.x, sideStim.x));
 
             // check if all targets are inside the window
             if (550 > width_here ||
-            300 > height_here) {
+                300 > height_here) {
                 // change the inner html to an error warning
                 display_element.innerHTML = '<p>Your screen is not big enough in this orientation. Please turn to landscape or switch to a larger device.</p>'
                 // break out of this loop - we don't need to check additional targets
@@ -328,12 +327,12 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
             //start trial duration
             startTime = jsPsych.totalTime();
             // save central XY
-            xyCoords.centralX = e.pageX;
-            xyCoords.centralY = e.pageY;
+            xyCoords.centralX = e.clientX;
+            xyCoords.centralY = e.clientY;
             if (xyCoords.centralX == null) {
                 // if that didn't work, try a different version
-                xyCoords.centralX = e.changedTouches[0].screenX;
-                xyCoords.centralY = e.changedTouches[0].screenY;
+                xyCoords.centralX = e.touches["0"].clientX;
+                xyCoords.centralY = e.touches["0"].clientY;
             }
             // measure how long the person waited before a response
             waitTime = startTime - initTime;
@@ -343,7 +342,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
             // handles lift events from the central button
             goTime = jsPsych.totalTime();
             // check if that was too early
-            earlyResponse = jsPsych.totalTime() < goSignalTime + 100; // anticipatory responses happen less than 100 ms after go signal
+            earlyResponse = goTime < (startTime + fix_time + 100); // anticipatory responses happen less than 100 ms after go signal
             if (earlyResponse) {
                 // end the trial early after an early response
                 after_response();
@@ -364,12 +363,12 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
             // determine mt
             mtTime = respTime - mtTime;
             // save xy
-            xyCoords.sideX = e.pageX;
-            xyCoords.sideY = e.pageY;
+            xyCoords.sideX = e.clientX;
+            xyCoords.sideY = e.clientY;
             if (xyCoords.sideX == null) {
                 // or try a different version
-                xyCoords.sideX = e.changedTouches[0].screenX;
-                xyCoords.sideY = e.changedTouches[0].screenY;
+                xyCoords.sideX = e.touches["0"].clientX;
+                xyCoords.sideY = e.touches["0"].clientY;
             }
             // set late response to false
             lateResponse = false;
@@ -410,6 +409,8 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
 
             // remove window wide event listeners
             window.removeEventListener("resize", onScreenResize);
+            document.removeEventListener(responseOn, saveOffTouches);
+
 
             // gather the data to store for the trial
             let trial_data = {
@@ -444,19 +445,18 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
                 "centralY": centralStim.y,
                 "jumpedX": jumpedStim.x,
                 "jumpedY": jumpedStim.y,
-                // "docTouches": allTouches,
+                "offTouches": offTouches,
 
                 // others
                 "errors": errors,
                 "windowWidth": window.innerWidth, // the width of the screen
                 "windowHeight": window.innerHeight, // the height of the screen
                 "scrOrientation": function () {
-                    if (typeof screen.orientation === 'undefined') {
-                        // alternative when orientation is not available
+                    if (window.innerHeight < window.innerWidth) {
                         // check if the device is wider than high
-                        return [window.innerHeight < window.innerWidth, 'rel']
+                        return 'landscape'
                     } else {
-                        return [screen.orientation.angle, 'angle']
+                        return 'portrait'
                     }
                 }(),
             };
@@ -473,6 +473,9 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         display_element.querySelector('#button-central').addEventListener(responseOff, onCentralLift);
         display_element.querySelector('#button-side').addEventListener(responseOn, onSideTouch);
 
+        // add event listener for off touches
+        document.addEventListener(responseOn, saveOffTouches);
+
         // add an event listener to detect if the screen was rotated
         window.addEventListener("resize", onScreenResize);
 
@@ -483,7 +486,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         };
 
         // check the screen orientation
-         checkScreenSize();
+        checkScreenSize();
     }
 
     return plugin;

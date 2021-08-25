@@ -29,11 +29,11 @@
         let allowedWaitTime = 15 * 60 * 1000; // allowed wait time in min * sec/min * ms/sec
 
         // get screen orientation information
-        if (typeof screen.orientation === 'undefined'){
-           // if screen.orientation doesn't work, check if the device is broader than high.
-            orientation = [screen.innerHeight<screen.innerWidth, 'rel']
+        if (window.innerHeight < window.innerWidth){
+           // check if the device is broader than high.
+            orientation = 'landscape'
         } else {
-            orientation = [screen.orientation.angle, 'angle']
+            orientation = 'portrait'
         }
 
         /* define welcome message trial */
@@ -72,7 +72,10 @@
             stimulus: "./tabletUse.jpg",
             choices: ["Ok. Continue >"],
             stimulus_height: 400,
-            prompt: "If you are using a tablet, please put it down on a table and use your index finger for responses."
+            prompt: "If you are using a tablet, please put it down on a table and use your index finger for responses.",
+            data: {
+                test_part: 'general_tablet',
+            }
         }
         welcome_timeline.push(show_tablet);
 
@@ -81,7 +84,10 @@
             stimulus: "./phoneUse.jpg",
             choices: ["Ok. Continue >"],
             stimulus_height: 400,
-            prompt: "If you are using a phone, please put it down on a table, fixate with one hand and use your index finger for responses."
+            prompt: "If you are using a phone, please put it down on a table, fixate with one hand and use your index finger for responses.",
+                        data: {
+                test_part: 'general_phone',
+            }
         }
         welcome_timeline.push(show_phone);
 

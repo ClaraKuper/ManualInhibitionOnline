@@ -18,3 +18,4 @@ July 27th 2021 (Clara): Change to serial task - position of dots is not regular 
 July 28th 2021 (Clara): Fix position readout bug (the position was saved with respect to the group of objects, not to every single dot).
 July 28th 2021 (Clara): Parameter changes on serial task (longer time, dots spaced further apart, exploratory)
 August 19th 2021 (Clara): Detect changes in screen size, alert when screen gets to small to present stimuli, abort trial upon change.
+August 20th 2021 (Clara): Detect touches on the document that don't target any of the touchable elements

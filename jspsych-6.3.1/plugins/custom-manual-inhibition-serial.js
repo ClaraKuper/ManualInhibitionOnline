@@ -185,7 +185,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
         let touchCoordsX = []; // X coordinates of touches - array
         let touchCoordsY = []; // Y coordinates of touches - array
         let choiceOrder = []; // the order in which all stimuli were pressed
-        // let allTouches = []; // all touches with timestamps registered across the screen
+        let offTouches = []; // all touches with timestamps registered across the screen
         let rectOnScreen = []; // value to store the rectangle information about 1 dot
         let jumpRectOnScreen = []; // values to store information about jumped dots
         let xOnScreen = []; // the X coordinates of the stimuli on the screen
@@ -204,10 +204,11 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
         };
 
         // set coordinate variables to monitor all screen touches
-        //let xyCrossScreen = {
-        //    touchX: null,
-        //    touchY: null
-        //};
+        let offTouch = {
+            touchX: null,
+            touchY: null,
+            time: null,
+        };
 
         // stim coordinates
         for (let i = 0; i < nTargets; i++) {
@@ -234,15 +235,13 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
 
         // FUNCTIONS
         let checkScreenSize = function () {
-            console.log('Screen size check!');
             // retrieve the size of the window
 
             let width_here = window.innerWidth;
             let height_here = window.innerHeight;
-            console.log('w: ' + width_here)
-            console.log('h: ' + height_here)
+
             // check if all targets are inside the window
-            if (Math.abs(Math.min.apply(null, posX)) + Math.abs(Math.max.apply(null, posX))  > width_here ||
+            if (Math.abs(Math.min.apply(null, posX)) + Math.abs(Math.max.apply(null, posX)) > width_here ||
                 Math.abs(Math.min.apply(null, posY)) + Math.abs(Math.max.apply(null, posY)) > height_here) {
                 // change the inner html to an error warning
                 display_element.innerHTML = '<p>Your screen is not big enough in this orientation. Please turn to landscape or switch to a larger device.</p>'
@@ -387,6 +386,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
 
             // remove window wide event listeners
             window.removeEventListener("resize", onScreenResize);
+            document.removeEventListener(responseOn, saveOffTouches);
 
             // check booleans
             // check if all buttons were pressed at the time this is executed
@@ -417,7 +417,7 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
                 "touchX": touchCoordsX, // X coordinates of touches - array
                 "touchY": touchCoordsY, // Y coordinates of touches - array
                 "choiceOrder": choiceOrder, // the order in which all stimuli were pressed
-                //"allTouches": allTouches, // all touches with timestamps registered across the screen
+                "offTouches": offTouches, // all touches with timestamps registered across the screen
                 "button-x": xOnScreen, // the x positions of all dots
                 "button-y": yOnScreen, // the y positions of all dots
                 "jump-x": xOnJump, // the x positions of all dots
@@ -433,12 +433,11 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
                 "windowWidth": window.innerWidth, // the width of the screen
                 "windowHeight": window.innerHeight, // the height of the screen
                 "scrOrientation": function () {
-                    if (typeof screen.orientation === 'undefined') {
-                        // alternative when orientation is not available
+                    if (window.innerHeight < window.innerWidth) {
                         // check if the device is wider than high
-                        return [window.innerHeight < window.innerWidth, 'rel']
+                        return 'landscape'
                     } else {
-                        return [screen.orientation.angle, 'angle']
+                        return 'portrait'
                     }
                 }(),
             };
@@ -449,21 +448,28 @@ jsPsych.plugins["manual-inhibition-serial"] = (function () {
             setTimeout(jsPsych.finishTrial(trial_data), waitAfter);
         };
 
+        let saveOffTouches = function (e) {
+
+            if (!document.getElementById('jspsych-content').contains(e.target)) {
+
+                // save xy coordinates to the offTouch variable
+                offTouch.time = jsPsych.totalTime();
+                offTouch.touchX = e.clientX;
+                offTouch.touchY = e.clientY;
+
+                if (offTouch.touchX == null) {
+                    // if that didn't work, we might be on a different browser. Instead, we try:
+                    offTouch.touchX = e.touches["0"].clientX;
+                    offTouch.touchY = e.touches["0"].clientY;
+                }
+                // save all touches in our array
+                offTouches.push(offTouch);
+            }
+        }
+
         // EVENT LISTENERS
         // record all touches across the document
-        /* document.addEventListener(responseOn, function (e){
-             // change the xy coordinates
-             xyCrossScreen.touchX = e.pageX;
-             xyCrossScreen.touchY = e.pageY;
-
-             // if pageX holds no coordinates, we might be on a different system, try 'changedTouches' instead
-             if (xyCrossScreen.touchX == null) {
-                 xyCrossScreen.touchX = e.changedTouches[0].pageX;
-                 xyCrossScreen.touchY = e.changedTouches[0].pageY;
-             }
-             // save the values
-             allTouches.push(xyCrossScreen.touchX, xyCrossScreen.touchY, jsPsych.totalTime());
-         });*/
+        document.addEventListener(responseOn, saveOffTouches);
 
         // add event listeners to buttons
         // note: we only listen on invisible buttons. the visible buttons are only a guidance for the user

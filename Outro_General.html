@@ -44,6 +44,8 @@
     let scale = ["Concentrated", "Somewhat Concentrated", "Neutral", "Somewhat Distracted", "Distracted"];
     let finger_choice = ['thumb', 'index', 'other', 'multiple'];
     let fullscreen_responses = ['yes', 'no']
+    let handedness_responses = ['left', 'right', 'alternating']
+
 
     // check for concentration
     let focus = {
@@ -95,6 +97,20 @@
         },
     };
     timeline.push(screen);
+
+    // ask for handedness
+    let handedness = {
+        type: 'html-button-response',
+        stimulus: "<p>Which hand did you use make responses?</p>",
+        choices: handedness_responses,
+        data: {
+            test_part: 'outro_hand',
+        },
+        on_finish(data) {
+            data['survey_response'] = handedness_responses[data.button_pressed];
+        },
+    };
+    timeline.push(handedness);
 
     // check on any other comments
     let comments = {

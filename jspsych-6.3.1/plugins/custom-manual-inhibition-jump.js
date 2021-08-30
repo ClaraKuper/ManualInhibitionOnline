@@ -152,6 +152,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         html += flashUp;
         html += flashDown;
 
+        console.log(flashUp);
         // set the inner html
         display_element.innerHTML = html;
 

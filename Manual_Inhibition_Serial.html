@@ -32,7 +32,7 @@
 
     // define parameter values for the experiment
     // ALERT! Parameters were changed for testing
-    let nTrials = 2; //5; // 5 number of trials per condition
+    let nTrials = 5; // 5 number of trials per condition
     let trialDuration = 1500; //1500; //  1500 duration of the trial
     let cFlash = [0, 1]; // the flash conditions
     let cJump = [0, 1]; // the jump conditions
@@ -41,7 +41,7 @@
     // This ensures a random distribution that samples across the entire range from 0 up to the trial duration
     // and avoids clusters appearing by chance.
     let maxFlashTime = 700; // maximum time after which a flash is shown in ms
-    let twSize = maxFlashTime / 10; // the size of the time windows maxFlashTime/10 (will result in 10 time windows)
+    let twSize = maxFlashTime/10; // the size of the time windows maxFlashTime/10 (will result in 10 time windows)
     let flashDuration = 50; // how long the flash will be on the screen in ms
     let waitAfter = 500; // how long we will wait at the end of the trial in ms
     let xPositions = [250, 150, 50, -50, -150, -250]; // the mean X position of the dots
@@ -86,6 +86,7 @@
             flashTime: jsPsych.timelineVariable('flashTime'),  // the time when a flash was shown
             trialID: jsPsych.timelineVariable('trialID'), // the id of the trial
             stimJumped: jsPsych.timelineVariable('stimJumps'), // if the array jumped or not
+            flashShown: jsPsych.timelineVariable('flashShown'), // if the flash was shown or not
 
         },
         on_finish: function (data) {
@@ -189,6 +190,8 @@
     /* start the experiment */
     // load jatos - I can use jatos functions after this line
     jatos.onLoad(function () {
+
+        jatos.uploadResultFile(timelineVariables, "allTimelineVariables.json");
 
         jsPsych.data.addProperties({
             subject: jatos.workerId, // id of the subject

@@ -56,7 +56,7 @@ def find_outliers(data, column):
     return remove_idx
 
 
-def load_missing_data(component, result_id, folder_name='../data/jatos_resultfiles/study-result_{}',
+def load_missing_data(component, result_id, folder_name='../data/jatos_resultfiles_author/study-result_{}',
                       file_name='trialData.json'):
     """
     function that tries to load the missing data from result files
@@ -313,11 +313,11 @@ def check_xdot_xtouch_correlation(subjects, data):
         s_df = data[data.subject == s]
 
         # filter only data where the target jumped
-        jump_idx = s_df.stimJumped == 1.0
+        #jump_idx = s_df.stimJumped == 1.0
 
         # get the absolute values of touch response and dot position - collapse left and right responses
-        xTouch = abs(s_df[jump_idx].sTouchX.values)
-        xTarget = abs(s_df[jump_idx].jumpedX.values)
+        xTouch = abs(s_df.sTouchX.values)
+        xTarget = abs(s_df.jumpedX.values)
 
         # 1. plot
         axs_soa_xerror.flatten()[s_idx].scatter(xTarget, xTouch, c='steelblue')

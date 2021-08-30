@@ -125,5 +125,6 @@ function Serial_loop(nTrials, cFlash, cJump, maxFlashTime, twSize, PosX, PosY, r
             }
         }
     }
+    // save the file
     return test_stimuli;
 }

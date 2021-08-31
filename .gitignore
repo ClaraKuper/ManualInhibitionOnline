@@ -4,3 +4,5 @@ data/
 .idea/
 analysis/.ipynb_checkpoints
 venv/
+*.ppt
+*.pptx

@@ -6,6 +6,7 @@ data/
 analysis/.ipynb_checkpoints
 venv/
 figures/colloquium23_06_2021/
+concept/ethics/
 *.ppt
 *.pptx
-concept/ethics/
+

@@ -2,7 +2,9 @@ jspsych-6.0.4/plugins/templates
 data/
 .ipynb_checkpoints/
 .idea/
+.DS_Store/
 analysis/.ipynb_checkpoints
 venv/
+figures/colloquium23_06_2021/
 *.ppt
 *.pptx

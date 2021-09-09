@@ -117,7 +117,7 @@ jsPsych.plugins["manual-inhibition-jump"] = (function () {
         // copy some values from trial
         // this is not necessary, but helps to keep an overview
         let flash_time = trial.flashTime;
-        let fix_time = trial.fixTime + trial.minFixTime;
+        let fix_time = trial.fixTime;
         let trial_dur = trial.trialDuration;
         let flash_dur = trial.flashDuration;
         let response_ends_trial = trial.response_ends_trial;

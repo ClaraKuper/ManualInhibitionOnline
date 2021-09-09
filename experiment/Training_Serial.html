@@ -11,7 +11,6 @@
 
     <!-- custom scripts -->
     <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-serial.js"></script>
-    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <script src="objects.js"></script>
     <script type="text/javascript" src="loops.js"></script>
@@ -100,7 +99,7 @@
 
     // display feedback
     let feedback = {
-        type: 'html-button-response-custom',
+        type: 'html-button-response',
         trialID: jsPsych.timelineVariable('trialID'),
         stimulus: function () {
             // evaluate which feedback should be shown
@@ -109,7 +108,7 @@
             } else if (lateResponse) {
                 return "<p>Too slow</p>"
             } else if (orderResponse) {
-                return "<p>Well Done.</p>"
+                return "<p>Well done.</p>"
             } else {
                 return "<p>Please follow the order.</p>"
             }
@@ -163,7 +162,7 @@
     let end_instructions = {
         type: 'instructions',
         pages: ["<p>That's the end of the training block.</p>" +
-        "<p>Let's start the second part of experiment.</p>"],
+        "<p>Let's start the experiment.</p>"],
         show_clickable_nav: true,
         button_label_next: 'Ok. Continue >',
         post_trial_gap: 200,
@@ -204,7 +203,9 @@
             fullscreen: true,
             on_finish: function () {
                 let resultJson = jsPsych.data.get().json();
-                jatos.submitResultData(resultJson, jatos.startNextComponent);
+                jatos.submitResultData(resultJson, function () {
+			            jatos.startComponentByPos(8);
+                });
             }
         });
     });

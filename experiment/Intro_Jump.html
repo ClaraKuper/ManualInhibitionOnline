@@ -42,7 +42,7 @@
         // displays the message, waits for response
         let jumptut_intro = {
             type: "instructions",
-            pages: ["<p>This is the the first part of the experiment. We will start with a tutorial for you. </p>"],
+            pages: ["<p>This part of the study is called 'Jumping dots'. We will start with a tutorial for you. </p>"],
             show_clickable_nav: true,
             button_label_next: 'Ok. Continue >',
             post_trial_gap: 200,
@@ -142,7 +142,9 @@
                 fullscreen: true,
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    jatos.submitResultData(resultJson, function () {
+			            jatos.startComponentByPos(3);
+		            });
                 },
             });
         });

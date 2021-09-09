@@ -9,7 +9,6 @@
     <script src="jspsych-6.3.1/jspsych.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
-    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
     <script src="jatos.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet" type="text/css"/>
@@ -56,7 +55,7 @@
         };
 
         let final_warning = {
-            type: "html-button-response-custom",
+            type: "html-button-response",
             stimulus: 'Please continue with the experiment.',
             post_trial_gap: 10,
             choices: ['end break'],
@@ -98,7 +97,17 @@
                 timeline: [break_node,pseudo_trial],
                 on_finish: function() {
                     let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    switch (jatos.studySessionData.taskOrder) {
+                        case "SJ":
+                            nextComponentPosition = 2;
+                            break;
+                        case "JS":
+                            nextComponentPosition = 6;
+                            break;
+                    }
+                    jatos.submitResultData(resultJson, function () {
+                            jatos.startComponentByPos(nextComponentPosition);
+                    })
                 },
             })
         });

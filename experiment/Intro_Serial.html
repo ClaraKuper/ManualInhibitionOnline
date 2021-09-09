@@ -30,7 +30,7 @@
   /* welcome message to jump tutorial */
   let serialtut_intro = {
     type: "instructions",
-    pages: ["<p>This is the the second part of the experiment. We will start with a tutorial for you. </p>",
+    pages: ["<p>This part of the experiment is called 'Series of dots'. We will start with a tutorial for you. </p>",
       "<p>In this block, six points will appear on screen in a row. </p>" +
       "<p>Touch all the points in order to collect them as fast as possible. </p>" +
       "<p>Press continue to begin.</p>"],
@@ -226,7 +226,9 @@
           fullscreen: true,
           on_finish: function() {
               var resultJson = jsPsych.data.get().json();
-              jatos.submitResultData(resultJson, jatos.startNextComponent);
+              jatos.submitResultData(resultJson, function () {
+			            jatos.startComponentByPos(7);
+                });
           }
       });
   });

@@ -10,8 +10,6 @@
     <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
     <!-- custom scripts -->
     <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-serial.js"></script>
-    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
-    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <script src="objects.js"></script>
     <script type="text/javascript" src="loops.js"></script>
@@ -31,9 +29,8 @@
     console.log('42');
 
     // define parameter values for the experiment
-    // ALERT! Parameters were changed for testing
     let nTrials = 5; // 5 number of trials per condition
-    let trialDuration = 1500; //1500; //  1500 duration of the trial
+    let trialDuration = 1500; //1500; duration of the trial
     let cFlash = [0, 1]; // the flash conditions
     let cJump = [0, 1]; // the jump conditions
     // for this design, we will create n even time windows between 0 up to the duration of the experiment.
@@ -115,7 +112,7 @@
 
     // display feedback
     let feedback = {
-        type: 'html-button-response-custom',
+        type: 'html-button-response',
         trialID: jsPsych.timelineVariable('trialID'),
         stimulus: function () {
             // evaluate which feedback should be shown
@@ -203,7 +200,17 @@
             on_finish: function () {
                 // once the code has run: save the results and call the next jatos component
                 let resultJson = jsPsych.data.get().json();
-                jatos.submitResultData(resultJson, jatos.startNextComponent)
+                switch (jatos.studySessionData.taskOrder) {
+                    case "SJ":
+                        nextComponentPosition = 5;
+                        break;
+                    case "JS":
+                        nextComponentPosition = 9;
+                        break;
+                }
+                jatos.submitResultData(resultJson, function () {
+			            jatos.startComponentByPos(nextComponentPosition);
+                })
                     .catch(() => console.log("File upload failed"));
             }
         });

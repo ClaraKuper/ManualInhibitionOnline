@@ -7,10 +7,9 @@
     <!-- If you use an older version of JATOS (< 3.3.1) you have to use absolutes path for you assets and jatos.js-->
     <script src="jspsych-6.3.1/jspsych.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
-    <!-- custom scripts -->
-    <script src="jspsych-6.3.1/plugins/custom-html-button-response-custom.js"></script>
-    <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-jump.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+    <!-- custom scripts -->
+    <script src="jspsych-6.3.1/plugins/custom-manual-inhibition-jump.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <script src="objects.js"></script>
     <script type="text/javascript" src="loops.js"></script>
@@ -102,7 +101,7 @@
 
     // feedback displayed after every trial
     let feedback = {
-        type: 'html-button-response-custom',
+        type: 'html-button-response',
         stimulus: function () {
             // evaluate the last trial, and adjust the stimulus that will be returned
             if (nDisplayTurns > 0){
@@ -112,7 +111,7 @@
             } else if (lateResponse) {
                 return "<p>Too slow!</p>"
             } else {
-                return "<p>Well Done.</p>"
+                return "<p>Well done.</p>"
             }
         },
         post_trial_gap: 0, // needs to be zero to avoid waiting times when the trial is skipped
@@ -164,7 +163,7 @@
     let end_instructions = {
         type: 'instructions',
         pages: ["<p>That's the end of the training block.</p>" +
-        "<p>Let's start the first part of experiment.</p>"],
+        "<p>Let's start the experiment.</p>"],
         show_clickable_nav: true,
         button_label_next: 'Ok. Continue >',
         post_trial_gap: 200,
@@ -208,7 +207,9 @@
             fullscreen: true,
             on_finish: function () {
                 let resultJson = jsPsych.data.get().json();
-                jatos.submitResultData(resultJson, jatos.startNextComponent);
+                jatos.submitResultData(resultJson, function () {
+			            jatos.startComponentByPos(4);
+		            });
             }
         });
     });

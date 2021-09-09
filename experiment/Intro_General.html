@@ -9,7 +9,11 @@
     <script src="jspsych-6.3.1/jspsych.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-instructions.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-image-button-response.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-preload.js"></script>
     <script src="jatos.js"></script>
+    <script src="common_funcs.js"></script>
+    <script src="common_vars.js"></script>
     <link href="styles.css" rel="stylesheet" type="text/css">
     <link href="jspsych-6.3.1/css/jspsych.css" rel="stylesheet" type="text/css"/>
     <!-- below, we prevent scaling and marking -->
@@ -25,7 +29,9 @@
 
         // define some values to collect
         let welcome_timeline = [];
+        let conditional_timeline = [];
         let orientation;
+        let doStudy = true;
         let allowedWaitTime = 15 * 60 * 1000; // allowed wait time in min * sec/min * ms/sec
 
         // get screen orientation information
@@ -35,6 +41,50 @@
         } else {
             orientation = 'portrait'
         }
+
+        let instruction_form = {
+            type: 'html-button-response',
+            stimulus: '<p>Please download and read the <a href="InformationForm_FastHandMovements_Online1.pdf" ' +
+                'target="_blank">Participant Information</a>.</p>',
+            choices: ['I have downloaded and read the form.'],
+            data: {
+                test_part: 'general_download',
+            }
+        };
+        welcome_timeline.push(instruction_form);
+
+        let agree_participation = {
+            type: 'html-button-response',
+            stimulus: "<p>I hereby express my voluntary agreement to participate in the planed study 'Fast hand movements " +
+                "on a touchscreen' and agree that my data is being processed as described in the information form that I received. </p>",
+            choices: ['Yes', 'No'],
+            data: {
+                test_part: 'general_participation',
+            },
+            on_finish: function(data){
+                if (parseInt(data.button_pressed) === 1){
+                    doStudy = false;
+                }
+            },
+        };
+        welcome_timeline.push(agree_participation);
+
+        let agree_publication = {
+            type: 'html-button-response',
+            stimulus: "<p>I hereby express my voluntary agreement that the anonymized data collected in this study " +
+                "can be made accessible to researchers worldwide through a scientific data repository.</p>",
+            choices: ['Yes', 'No'],
+            data: {
+                test_part: 'general_publication',
+            }
+        };
+        welcome_timeline.push(agree_publication);
+
+        let preload = {
+            type: 'preload',
+            auto_preload: false,
+        };
+        conditional_timeline.push(preload)
 
         /* define welcome message trial */
         let welcome = {
@@ -48,7 +98,7 @@
                 test_part: 'general_welcome',
             }
         };
-        welcome_timeline.push(welcome);
+        conditional_timeline.push(welcome);
 
         /* define instructions trial */
         let general_intro = {
@@ -65,7 +115,7 @@
                 test_part: 'general_intro',
             }
         };
-        welcome_timeline.push(general_intro);
+        conditional_timeline.push(general_intro);
 
         let show_tablet = {
             type: "image-button-response",
@@ -77,7 +127,7 @@
                 test_part: 'general_tablet',
             }
         }
-        welcome_timeline.push(show_tablet);
+        conditional_timeline.push(show_tablet);
 
         let show_phone = {
             type: "image-button-response",
@@ -89,18 +139,27 @@
                 test_part: 'general_phone',
             }
         }
-        welcome_timeline.push(show_phone);
+        conditional_timeline.push(show_phone);
+
+        let after_consent = {
+            timeline: conditional_timeline,
+            conditional_function: function(){console.log('Evaluation the conditional function'); return doStudy},
+        }
+
+        welcome_timeline.push(after_consent)
 
         /* start the experiment */
         jatos.onLoad(function () {
-
+            initBatchConditions();
             // track the timing across the experiment
             // min waittime * sec/min * ms/sec
-            let studySessionData = {"totalWaitTime":0, "allowedWaitTime":allowedWaitTime};
-            jatos.setStudySessionData(studySessionData);
+            urlVars = jsPsych.data.urlVariables();
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
+                prolificPID: urlVars.PROLIFIC_PID,
+                prolificStudyID: urlVars.STUDY_ID,
+                prolificSessionID: urlVars.SESSION_ID,
                 screenWidth: screen.width, // screen width in px
                 screenHeight: screen.height, // screen height in px
                 windowWidth: window.innerWidth, // window width in px
@@ -117,8 +176,26 @@
             jsPsych.init({
                 timeline: welcome_timeline,
                 on_finish: function() {
+                    let randomCondition = jatos.batchSession.get("condition");
                     let resultJson = jsPsych.data.get().json();
-                    jatos.submitResultData(resultJson, jatos.startNextComponent);
+                    let studySessionData = {"totalWaitTime":0, "allowedWaitTime":allowedWaitTime, "taskOrder":randomCondition};
+                    jatos.setStudySessionData(studySessionData);
+                    switch (randomCondition) {
+                        case "SJ":
+                            nextComponentPosition = 6;
+                            break;
+                        case "JS":
+                            nextComponentPosition = 2;
+                            break;
+                    }
+                    if (doStudy){
+                        setTimeout(10000, jatos.submitResultData(resultJson, function () {
+                            jatos.startComponentByPos(nextComponentPosition);
+		            }));
+                    } else {
+                        jatos.endStudy(resultJson);
+                    }
+
                 },
             });
         });

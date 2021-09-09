@@ -1,4 +1,5 @@
 /* create timeline */
+let nextComponentPosition; // which component we should start next
 let timeline = []; // timeline to run on jsPsych.init
 
 let repeat_IDs = []; // a list of all IDs that have to be repeated

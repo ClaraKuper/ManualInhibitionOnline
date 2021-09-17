@@ -11,6 +11,7 @@
     <script src="jspsych-6.3.1/plugins/jspsych-image-button-response.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-html-button-response.js"></script>
     <script src="jspsych-6.3.1/plugins/jspsych-preload.js"></script>
+    <script src="jspsych-6.3.1/plugins/jspsych-survey-text.js"></script>
     <script src="jatos.js"></script>
     <script src="common_funcs.js"></script>
     <script src="common_vars.js"></script>
@@ -76,12 +77,18 @@
             choices: ['Yes', 'No'],
             data: {
                 test_part: 'general_publication',
-            }
+            },
+            on_finish: function(data){
+                if (parseInt(data.button_pressed) === 1){
+                    doStudy = false;
+                }
+            },
         };
         welcome_timeline.push(agree_publication);
 
         let preload = {
             type: 'preload',
+            images: ['./tabletUse.jpg', './phoneUse.jpg'],
             auto_preload: false,
         };
         conditional_timeline.push(preload)
@@ -140,10 +147,27 @@
             }
         }
         conditional_timeline.push(show_phone);
-
+        /* copy-paste is annoying with a smartphone ...
+        let prolific_ID = {
+            type: 'survey-text',
+            questions: [
+                {
+                    prompt: "Please copy-paste your prolific ID here.",
+                    placeholder: "Your prolific ID."
+                },
+            ],
+            data: {
+                test_part: 'general_ID'
+            },
+            on_finish(data) {
+                data['survey_response'] = data.response['Q0'];
+            },
+        }
+        conditional_timeline.push(prolific_ID);
+*/
         let after_consent = {
             timeline: conditional_timeline,
-            conditional_function: function(){console.log('Evaluation the conditional function'); return doStudy},
+            conditional_function: function(){return doStudy},
         }
 
         welcome_timeline.push(after_consent)
@@ -157,9 +181,9 @@
 
             jsPsych.data.addProperties({
                 subject: jatos.workerId, // id of the subject
-                prolificPID: urlVars.PROLIFIC_PID,
-                prolificStudyID: urlVars.STUDY_ID,
-                prolificSessionID: urlVars.SESSION_ID,
+                prolificPID: jatos.urlQueryParameters.PROLIFIC_PID,
+                prolificStudyID: jatos.urlQueryParameters.STUDY_ID,
+                prolificSessionID: jatos.urlQueryParameters.SESSION_ID,
                 screenWidth: screen.width, // screen width in px
                 screenHeight: screen.height, // screen height in px
                 windowWidth: window.innerWidth, // window width in px
